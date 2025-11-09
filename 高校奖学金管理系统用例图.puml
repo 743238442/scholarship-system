@@ -1,0 +1,98 @@
+@startuml 高校奖学金管理系统用例图
+
+skinparam packageStyle rectangle
+skinparam backgroundColor white
+skinparam actorStyle uml2
+skinparam shadowing false
+skinparam arrowColor #0072C6
+skinparam actor {
+  BackGroundColor #FFFFFF
+  BorderColor #0072C6
+}
+skinparam package {
+  BackGroundColor #F5F5F5
+  BorderColor #0072C6
+}
+skinparam usecase {
+  BackGroundColor #E6F3FF
+  BorderColor #0072C6
+  ArrowColor #0072C6
+}
+
+actor "学生" as Student #LightBlue
+actor "辅导员" as Counselor #LightGreen
+actor "学院管理员" as CollegeAdmin #LightYellow
+actor "学校管理员" as SchoolAdmin #LightPink
+actor "系统管理员" as SysAdmin #LightGray
+
+package "学生信息管理模块" {
+  usecase "个人信息管理" as StudentInfoMgmt
+  usecase "学生基本信息管理" as BasicInfoMgmt
+  usecase "学生学业信息管理" as AcademicInfoMgmt
+  usecase "学生综合表现管理" as PerformanceMgmt
+  usecase "成绩录入与查询" as ScoreMgmt
+  usecase "综合表现记录" as RecordPerformance
+}
+
+package "奖学金评定管理模块" {
+  usecase "奖学金类型与标准管理" as ScholarshipTypeMgmt
+  usecase "申请资格初审" as PreliminaryReview
+  usecase "学院评审" as CollegeReview
+  usecase "学校复审" as SchoolReview
+}
+
+package "公示管理模块" {
+  usecase "查看公示结果" as ViewAnnouncement
+  usecase "提交异议" as SubmitObjection
+  usecase "发布公示" as PublishAnnouncement
+  usecase "处理异议" as HandleObjection
+}
+
+package "系统管理" {
+  usecase "用户管理" as UserMgmt
+  usecase "权限配置" as PermissionConfig
+  usecase "数据备份与恢复" as DataBackupRestore
+}
+
+' 学生关联关系
+Student -- StudentInfoMgmt
+Student -- ViewAnnouncement
+Student -- SubmitObjection
+
+' 辅导员关联关系
+Counselor -- BasicInfoMgmt
+Counselor -- AcademicInfoMgmt
+Counselor -- ScoreMgmt
+Counselor -- PreliminaryReview
+Counselor -- HandleObjection
+
+' 学院管理员关联关系
+CollegeAdmin -- BasicInfoMgmt
+CollegeAdmin -- AcademicInfoMgmt
+CollegeAdmin -- PerformanceMgmt
+CollegeAdmin -- RecordPerformance
+CollegeAdmin -- ScholarshipTypeMgmt
+CollegeAdmin -- CollegeReview
+CollegeAdmin -- PublishAnnouncement
+CollegeAdmin -- HandleObjection
+
+' 学校管理员关联关系
+SchoolAdmin -- ScholarshipTypeMgmt
+SchoolAdmin -- SchoolReview
+SchoolAdmin -- PublishAnnouncement
+SchoolAdmin -- HandleObjection
+
+' 系统管理员关联关系
+SysAdmin -- UserMgmt
+SysAdmin -- PermissionConfig
+SysAdmin -- DataBackupRestore
+
+' 模块内用例扩展关系
+PublishAnnouncement ..> HandleObjection : 包含
+
+' 评审流程关系
+PreliminaryReview ..> CollegeReview : 前置
+CollegeReview ..> SchoolReview : 前置
+SchoolReview ..> PublishAnnouncement : 前置
+
+@enduml
