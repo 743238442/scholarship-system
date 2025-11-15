@@ -1,0 +1,91 @@
+# Spring Boot 应用程序配置
+spring:
+  application:
+    name: scholarship-system
+
+  # 服务器配置
+  server:
+    port: 8080
+    servlet:
+      context-path: /
+
+  # 数据库配置 - PostgreSQL
+  datasource:
+    url: jdbc:postgresql://localhost:5432/scholarship_db
+    username: postgres
+    password: 123456
+    driver-class-name: org.postgresql.Driver
+
+  # JPA/Hibernate配置
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        use_sql_comments: true
+
+  # 事务管理
+  transaction:
+    default-timeout: 30
+
+  # Thymeleaf配置（关闭缓存）
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
+    encoding: UTF-8
+    mode: HTML
+    servlet:
+      content-type: text/html
+
+  # 文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+      enabled: true
+
+  # 开发工具配置
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+
+  # 安全管理配置
+  security:
+    user:
+      name: admin
+      password: admin123
+      roles: ADMIN
+
+  # 缓存配置
+  cache:
+    type: simple
+    cache-names: userCache,scholarshipCache
+
+  # 时区配置（Asia/Shanghai）
+  jackson:
+    time-zone: Asia/Shanghai
+    date-format: yyyy-MM-dd HH:mm:ss
+
+  # 消息源配置
+  messages:
+    basename: messages/messages
+    encoding: UTF-8
+    cache-duration: 3600
+
+# 日志配置
+logging:
+  level:
+    com.example.scholarship: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
+  file:
+    name: logs/scholarship-system.log
