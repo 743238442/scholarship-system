@@ -1,0 +1,17 @@
+com\example\scholarship\entity\Student.class
+com\example\scholarship\entity\User.class
+com\example\scholarship\entity\BaseEntity.class
+com\example\scholarship\repository\StudentRepository.class
+com\example\scholarship\ScholarshipSystemApplication.class
+com\example\scholarship\service\UserService.class
+com\example\scholarship\entity\Permission$MenuType.class
+com\example\scholarship\entity\Student$Gender.class
+com\example\scholarship\entity\Student$StudentStatus.class
+com\example\scholarship\config\SecurityConfig.class
+com\example\scholarship\entity\User$UserType.class
+com\example\scholarship\entity\User$UserStatus.class
+com\example\scholarship\config\WebMvcConfig.class
+com\example\scholarship\controller\SystemController.class
+com\example\scholarship\entity\Role.class
+com\example\scholarship\entity\Permission.class
+com\example\scholarship\repository\UserRepository.class
