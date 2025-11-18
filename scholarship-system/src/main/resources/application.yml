@@ -9,11 +9,11 @@ spring:
     servlet:
       context-path: /
 
-  # 数据库配置 - PostgreSQL
+  # 数据库配置 - PostgreSQL数据库
   datasource:
     url: jdbc:postgresql://localhost:5432/scholarship_db
     username: postgres
-    password: 123456
+    password: 1234
     driver-class-name: org.postgresql.Driver
 
   # JPA/Hibernate配置
