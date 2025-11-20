@@ -5,11 +5,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
@@ -36,19 +34,14 @@ public class Student extends BaseEntity {
     private String name;
 
     @Enumerated(EnumType.STRING)
+    @NotNull(message = "性别不能为空")
     @Column(name = "gender", nullable = false)
     private Gender gender;
 
-    @NotBlank(message = "身份证号不能为空")
-    @Size(min = 18, max = 18, message = "身份证号必须是18位")
-    @Pattern(regexp = "^[0-9]{17}[0-9X]$", message = "身份证号格式不正确")
-    @Column(name = "id_card", unique = true, nullable = false, length = 18)
-    private String idCard;
-
-    @NotBlank(message = "院系不能为空")
-    @Size(max = 100, message = "院系长度不能超过100个字符")
-    @Column(name = "department", nullable = false, length = 100)
-    private String department;
+    @NotBlank(message = "学院不能为空")
+    @Size(max = 100, message = "学院长度不能超过100个字符")
+    @Column(name = "college", nullable = false, length = 100)
+    private String college;
 
     @NotBlank(message = "专业不能为空")
     @Size(max = 100, message = "专业长度不能超过100个字符")
@@ -60,70 +53,37 @@ public class Student extends BaseEntity {
     @Column(name = "class_name", nullable = false, length = 50)
     private String className;
 
+    @NotBlank(message = "班级不能为空")
+    @Size(max = 50, message = "班级长度不能超过50个字符")
+    @Column(name = "class", nullable = false, length = 50)
+    private String clazz;
+
     @NotBlank(message = "年级不能为空")
     @Pattern(regexp = "^20\\d{2}$", message = "年级格式不正确，必须是20XX年格式")
     @Column(name = "grade", nullable = false, length = 4)
     private String grade;
 
-    @Column(name = "birth_date")
-    private LocalDate birthDate;
+    @Size(max = 20, message = "联系方式长度不能超过20个字符")
+    @Column(name = "contact", length = 20)
+    private String contact;
 
-    @Size(max = 20, message = "民族长度不能超过20个字符")
-    @Column(name = "ethnicity", length = 20)
-    private String ethnicity;
+    @NotBlank(message = "系别不能为空")
+    @Size(max = 100, message = "系别长度不能超过100个字符")
+    @Column(name = "department", nullable = false, length = 100)
+    private String department;
 
-    @Size(max = 50, message = "政治面貌长度不能超过50个字符")
-    @Column(name = "political_status", length = 50)
-    private String politicalStatus;
-
-    @Size(max = 20, message = "联系电话长度不能超过20个字符")
-    @Column(name = "phone", length = 20)
-    private String phone;
-
-    @Email(message = "邮箱格式不正确")
-    @Size(max = 100, message = "邮箱长度不能超过100个字符")
-    @Column(name = "email", length = 100)
-    private String email;
-
-    @Size(max = 200, message = "家庭地址长度不能超过200个字符")
-    @Column(name = "address", length = 200)
-    private String address;
-
-    @NotNull(message = "入学时间不能为空")
+    @NotNull(message = "入学日期不能为空")
     @Column(name = "enrollment_date", nullable = false)
     private LocalDate enrollmentDate;
 
-    @Column(name = "graduation_date")
-    private LocalDate graduationDate;
+    @Column(name = "is_graduated", nullable = false)
+    private Boolean isGraduated = false;
 
-    @NotNull(message = "学制不能为空")
+    @NotNull(message = "学制年限不能为空")
     @Column(name = "study_years", nullable = false)
-    private Integer studyYears;
+    private Integer studyYears = 4;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private StudentStatus status = StudentStatus.ACTIVE;
-
-    @Column(name = "photo_url", length = 500)
-    private String photoUrl;
-
-    @Column(name = "emergency_contact", length = 50)
-    private String emergencyContact;
-
-    @Column(name = "emergency_phone", length = 20)
-    private String emergencyPhone;
-
-    @Column(name = "bank_name", length = 100)
-    private String bankName;
-
-    @Column(name = "bank_account", length = 50)
-    private String bankAccount;
-
-    @Size(max = 1000, message = "备注长度不能超过1000个字符")
-    @Column(name = "remark", length = 1000)
-    private String remark;
-
-    // 关联用户
+    // 关联用户 - 一对一关系
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", unique = true, nullable = false)
     private User user;
@@ -133,8 +93,7 @@ public class Student extends BaseEntity {
      */
     public enum Gender {
         MALE("男"),
-        FEMALE("女"),
-        UNKNOWN("未知");
+        FEMALE("女");
 
         private final String description;
 
@@ -147,15 +106,25 @@ public class Student extends BaseEntity {
         }
     }
 
+    @NotBlank(message = "身份证号不能为空")
+    @Size(max = 18, message = "身份证号长度不能超过18个字符")
+    @Pattern(regexp = "^[0-9]{17}[0-9Xx]$", message = "身份证号格式不正确")
+    @Column(name = "id_card", nullable = false, length = 18)
+    private String idCard;
+
+    @NotNull(message = "状态不能为空")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private StudentStatus status = StudentStatus.ACTIVE;
+
     /**
      * 学生状态枚举
      */
     public enum StudentStatus {
         ACTIVE("在读"),
-        GRADUATED("毕业"),
+        GRADUATED("已毕业"),
         SUSPENDED("休学"),
-        DROPPED("退学"),
-        TRANSFERRED("转学");
+        DROPPED_OUT("退学");
 
         private final String description;
 
@@ -168,27 +137,133 @@ public class Student extends BaseEntity {
         }
     }
 
-    /**
-     * 计算学生当前年级（如大一、大二等）
-     */
-    public String getCurrentGradeLevel() {
-        if (enrollmentDate == null) {
-            return "未知";
-        }
-        
-        int currentYear = LocalDate.now().getYear();
-        int enrollmentYear = enrollmentDate.getYear();
-        int gradeLevel = currentYear - enrollmentYear + 1;
-        
-        if (gradeLevel <= 0) {
-            return "未知";
-        }
-        
-        String[] gradeNames = {"大一", "大二", "大三", "大四", "大五"};
-        if (gradeLevel > gradeNames.length) {
-            return "研究生";
-        }
-        
-        return gradeNames[gradeLevel - 1];
+    // 手动添加getter方法，解决Lombok问题
+    public String getStudentNo() {
+        return studentNo;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public String getCollege() {
+        return college;
+    }
+
+    public String getMajor() {
+        return major;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public String getClazz() {
+        return clazz;
+    }
+
+    public String getGrade() {
+        return grade;
+    }
+
+    public String getContact() {
+        return contact;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public LocalDate getEnrollmentDate() {
+        return enrollmentDate;
+    }
+
+    public Boolean getIsGraduated() {
+        return isGraduated;
+    }
+
+    public Integer getStudyYears() {
+        return studyYears;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public String getIdCard() {
+        return idCard;
+    }
+
+    public StudentStatus getStatus() {
+        return status;
+    }
+
+    // 手动添加setter方法
+    public void setStudentNo(String studentNo) {
+        this.studentNo = studentNo;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+
+    public void setCollege(String college) {
+        this.college = college;
+    }
+
+    public void setMajor(String major) {
+        this.major = major;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public void setClazz(String clazz) {
+        this.clazz = clazz;
+    }
+
+    public void setGrade(String grade) {
+        this.grade = grade;
+    }
+
+    public void setContact(String contact) {
+        this.contact = contact;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+
+    public void setEnrollmentDate(LocalDate enrollmentDate) {
+        this.enrollmentDate = enrollmentDate;
+    }
+
+    public void setIsGraduated(Boolean isGraduated) {
+        this.isGraduated = isGraduated;
+    }
+
+    public void setStudyYears(Integer studyYears) {
+        this.studyYears = studyYears;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setIdCard(String idCard) {
+        this.idCard = idCard;
+    }
+
+    public void setStatus(StudentStatus status) {
+        this.status = status;
     }
 }

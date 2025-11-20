@@ -54,41 +54,108 @@
 
         <!-- 主要内容 -->
         <main class="container mt-4">
+            
+            <!-- 登录用户欢迎信息 -->
+            <div class="row" th:if="${#authentication?.name}">
+                <div class="col-12">
+                    <div class="alert alert-success" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-person-check-fill text-success me-3" style="font-size: 2rem;"></i>
+                            <div>
+                                <h4 class="alert-heading">
+                                    欢迎回来，<span th:text="${#authentication?.name}" class="text-success">用户</span>！
+                                </h4>
+                                <p class="mb-0" th:if="${#authorization?.expression('hasRole(''ADMIN'')')}">
+                                    <i class="bi bi-shield-check"></i> 您拥有管理员权限，可以管理学生信息、审核奖学金申请等。
+                                </p>
+                                <p class="mb-0" th:if="${#authorization?.expression('hasRole(''STUDENT'')')}">
+                                    <i class="bi bi-mortarboard"></i> 您是学生用户，可以查看奖学金信息、申请奖学金等。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 未登录用户欢迎信息 -->
+            <div class="row" th:if="!${#authentication?.name}">
+                <div class="col-12">
+                    <div class="alert alert-info" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-info-circle-fill text-info me-3" style="font-size: 2rem;"></i>
+                            <div>
+                                <h4 class="alert-heading">欢迎使用高校奖学金管理系统</h4>
+                                <p class="mb-0">
+                                    本系统提供完整的奖学金管理功能，包括学生信息管理、奖学金申请评审、公示发布等。
+                                    请登录以体验完整功能。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 功能模块 -->
             <div class="row">
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="card-title mb-0">欢迎使用高校奖学金管理系统</h5>
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-grid-3x3-gap-fill"></i> 
+                                <span th:if="${#authentication?.name}">快捷入口</span>
+                                <span th:if="!${#authentication?.name}">功能模块</span>
+                            </h5>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-4">
-                                    <div class="card text-center">
+                                    <div class="card text-center h-100">
                                         <div class="card-body">
                                             <i class="bi bi-people-fill text-primary" style="font-size: 3rem;"></i>
                                             <h5 class="card-title mt-3">学生管理</h5>
-                                            <p class="card-text">管理学生基本信息、学习成绩等</p>
-                                            <a href="/student" class="btn btn-primary">进入管理</a>
+                                            <p class="card-text" th:if="${#authentication?.name}" th:text="${#authorization?.expression('hasRole(''ADMIN'')')} ? '管理学生基本信息、学习成绩等' : '查看学生相关信息'">管理学生信息</p>
+                                            <p class="card-text" th:if="!${#authentication?.name}">查看、搜索学生信息（需登录）</p>
+                                            <a href="/student" 
+                                               class="btn" 
+                                               th:classappend="${#authorization?.expression('hasRole(''ADMIN'')')} ? 'btn-primary' : 'btn-outline-primary'"
+                                               th:if="${#authentication?.name}">
+                                                进入管理
+                                            </a>
+                                            <a href="/login" class="btn btn-outline-primary" th:if="!${#authentication?.name}">登录查看</a>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="card text-center">
+                                    <div class="card text-center h-100">
                                         <div class="card-body">
                                             <i class="bi bi-award-fill text-success" style="font-size: 3rem;"></i>
-                                            <h5 class="card-title mt-3">奖学金评定</h5>
-                                            <p class="card-text">申请、评审、发放奖学金</p>
-                                            <a href="/scholarship" class="btn btn-success">进入评定</a>
+                                            <h5 class="card-title mt-3">奖学金管理</h5>
+                                            <p class="card-text" th:if="${#authentication?.name}" th:text="${#authorization?.expression('hasRole(''ADMIN'')')} ? '申请、评审、发放奖学金' : '查看、申请奖学金'">奖学金功能</p>
+                                            <p class="card-text" th:if="!${#authentication?.name}">申请、评审、发放奖学金（需登录）</p>
+                                            <a href="/scholarship" 
+                                               class="btn" 
+                                               th:classappend="${#authorization?.expression('hasRole(''ADMIN'')')} ? 'btn-success' : 'btn-outline-success'"
+                                               th:if="${#authentication?.name}">
+                                                进入管理
+                                            </a>
+                                            <a href="/login" class="btn btn-outline-success" th:if="!${#authentication?.name}">登录查看</a>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="card text-center">
+                                    <div class="card text-center h-100">
                                         <div class="card-body">
                                             <i class="bi bi-megaphone-fill text-info" style="font-size: 3rem;"></i>
-                                            <h5 class="card-title mt-3">公示管理</h5>
-                                            <p class="card-text">发布、查看奖学金公示信息</p>
-                                            <a href="/announcement" class="btn btn-info">进入公示</a>
+                                            <h5 class="card-title mt-3">公告管理</h5>
+                                            <p class="card-text" th:if="${#authentication?.name}" th:text="${#authorization?.expression('hasRole(''ADMIN'')')} ? '发布、查看奖学金公示信息' : '查看奖学金公示信息'">公告功能</p>
+                                            <p class="card-text" th:if="!${#authentication?.name}">发布、查看奖学金公示信息（需登录）</p>
+                                            <a href="/announcement" 
+                                               class="btn" 
+                                               th:classappend="${#authorization?.expression('hasRole(''ADMIN'')')} ? 'btn-info' : 'btn-outline-info'"
+                                               th:if="${#authentication?.name}">
+                                                进入管理
+                                            </a>
+                                            <a href="/login" class="btn btn-outline-info" th:if="!${#authentication?.name}">登录查看</a>
                                         </div>
                                     </div>
                                 </div>

@@ -79,6 +79,10 @@ public class User extends BaseEntity {
     )
     private Set<Role> roles = new HashSet<>();
 
+    // 学生信息关联 - 一对一关系
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    private Student student;
+
     /**
      * 用户状态枚举
      */
@@ -132,5 +136,119 @@ public class User extends BaseEntity {
     public void increaseLoginCount() {
         this.loginCount = (this.loginCount == null ? 0 : this.loginCount) + 1;
         this.lastLoginTime = LocalDate.now();
+    }
+
+    // 手动添加getter方法，解决Lombok问题
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getRealName() {
+        return realName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public UserStatus getStatus() {
+        return status;
+    }
+
+    public UserType getUserType() {
+        return userType;
+    }
+
+    public LocalDate getLastLoginTime() {
+        return lastLoginTime;
+    }
+
+    public Integer getLoginCount() {
+        return loginCount;
+    }
+
+    public Boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public Student getStudent() {
+        return student;
+    }
+
+    // 手动添加setter方法
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setRealName(String realName) {
+        this.realName = realName;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
+
+    public void setUserType(UserType userType) {
+        this.userType = userType;
+    }
+
+    public void setLastLoginTime(LocalDate lastLoginTime) {
+        this.lastLoginTime = lastLoginTime;
+    }
+
+    public void setLoginCount(Integer loginCount) {
+        this.loginCount = loginCount;
+    }
+
+    public void setIsDeleted(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
+    public void setStudent(Student student) {
+        this.student = student;
     }
 }

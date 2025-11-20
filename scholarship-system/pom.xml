@@ -92,11 +92,12 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Lombok (optional, for reducing boilerplate code) -->
+        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <version>1.18.30</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- JSON Processing -->
@@ -134,10 +135,10 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <excludes>
-                        <exclude>
+                        <!-- <exclude>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                        </exclude>
+                        </exclude> -->
                     </excludes>
                 </configuration>
             </plugin>

@@ -60,23 +60,92 @@ public class Permission extends BaseEntity {
     @ManyToMany(mappedBy = "permissions", fetch = FetchType.LAZY)
     private Set<Role> roles = new HashSet<>();
 
-    /**
-     * 菜单类型枚举
-     */
-    public enum MenuType {
-        MENU("菜单"),
-        BUTTON("按钮"),
-        API("接口"),
-        DIRECTORY("目录");
+    // 手动添加getter和setter方法
+    public String getName() {
+        return name;
+    }
 
-        private final String description;
+    public void setName(String name) {
+        this.name = name;
+    }
 
-        MenuType(String description) {
-            this.description = description;
-        }
+    public String getDescription() {
+        return description;
+    }
 
-        public String getDescription() {
-            return description;
-        }
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
+    }
+
+    public String getMenuType() {
+        return menuType;
+    }
+
+    public void setMenuType(String menuType) {
+        this.menuType = menuType;
+    }
+
+    public String getMenuPath() {
+        return menuPath;
+    }
+
+    public void setMenuPath(String menuPath) {
+        this.menuPath = menuPath;
+    }
+
+    public String getMenuIcon() {
+        return menuIcon;
+    }
+
+    public void setMenuIcon(String menuIcon) {
+        this.menuIcon = menuIcon;
+    }
+
+    public Integer getMenuSort() {
+        return menuSort;
+    }
+
+    public void setMenuSort(Integer menuSort) {
+        this.menuSort = menuSort;
+    }
+
+    public Boolean getIsEnabled() {
+        return isEnabled;
+    }
+
+    public void setIsEnabled(Boolean isEnabled) {
+        this.isEnabled = isEnabled;
+    }
+
+    public Boolean getIsSystem() {
+        return isSystem;
+    }
+
+    public void setIsSystem(Boolean isSystem) {
+        this.isSystem = isSystem;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }

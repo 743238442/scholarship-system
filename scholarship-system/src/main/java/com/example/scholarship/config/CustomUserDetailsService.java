@@ -1,10 +1,9 @@
 package com.example.scholarship.config;
 
-import com.example.scholarship.entity.UserEntity;
-import com.example.scholarship.repository.UserEntityRepository;
+import com.example.scholarship.entity.User;
+import com.example.scholarship.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -25,65 +24,76 @@ import java.util.List;
 public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired
-    private UserEntityRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
+    public org.springframework.security.core.userdetails.UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
         // 尝试通过用户名或邮箱查找用户
-        UserEntity user = userRepository.findByUsername(usernameOrEmail)
+        com.example.scholarship.entity.User user = userRepository.findByUsername(usernameOrEmail)
                 .orElseGet(() -> userRepository.findByEmail(usernameOrEmail)
                         .orElseThrow(() -> new UsernameNotFoundException("用户未找到: " + usernameOrEmail)));
 
-        // 检查用户是否激活
-        if (!user.getIsActive()) {
-            throw new UsernameNotFoundException("用户已被禁用: " + usernameOrEmail);
+        // 检查用户是否被删除
+        if (user.getIsDeleted()) {
+            throw new UsernameNotFoundException("用户已被删除: " + usernameOrEmail);
+        }
+        
+        // 检查用户状态
+        if (user.getStatus() == com.example.scholarship.entity.User.UserStatus.DISABLED || 
+            user.getStatus() == com.example.scholarship.entity.User.UserStatus.INACTIVE) {
+            throw new UsernameNotFoundException("用户已被禁用或未激活: " + usernameOrEmail);
         }
 
         // 转换角色为GrantedAuthority
         List<SimpleGrantedAuthority> authorities = Collections.singletonList(
-                new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
+                new SimpleGrantedAuthority("ROLE_" + user.getUserType().name())
         );
 
-        return User.builder()
+        return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getUsername())
                 .password(user.getPassword())
                 .authorities(authorities)
                 .accountExpired(false)
                 .accountLocked(false)
                 .credentialsExpired(false)
-                .disabled(!user.getIsActive())
+                .disabled(user.getStatus() == com.example.scholarship.entity.User.UserStatus.DISABLED)
                 .build();
     }
 
     /**
      * 创建测试用户（可选，用于开发测试）
+     * 注意：由于Lombok配置问题，暂时注释此方法
      */
+    /*
     public void createTestUsers() {
         // 创建管理员用户
         if (!userRepository.existsByUsername("admin")) {
-            UserEntity admin = new UserEntity();
+            com.example.scholarship.entity.User admin = new com.example.scholarship.entity.User();
             admin.setUsername("admin");
             admin.setPassword(passwordEncoder.encode("admin123"));
             admin.setEmail("admin@scholarship.edu.cn");
             admin.setPhone("13800000000");
-            admin.setRole(UserEntity.UserRole.ADMIN);
-            admin.setIsActive(true);
+            admin.setUserType(com.example.scholarship.entity.User.UserType.ADMIN);
+            admin.setStatus(com.example.scholarship.entity.User.UserStatus.ACTIVE);
+            admin.setIsDeleted(false);
             userRepository.save(admin);
         }
 
         // 创建学生用户
         if (!userRepository.existsByUsername("student")) {
-            UserEntity student = new UserEntity();
+            com.example.scholarship.entity.User student = new com.example.scholarship.entity.User();
             student.setUsername("student");
             student.setPassword(passwordEncoder.encode("student123"));
             student.setEmail("student@scholarship.edu.cn");
             student.setPhone("13900000000");
-            student.setRole(UserEntity.UserRole.STUDENT);
-            student.setIsActive(true);
+            student.setUserType(com.example.scholarship.entity.User.UserType.STUDENT);
+            student.setStatus(com.example.scholarship.entity.User.UserStatus.ACTIVE);
+            student.setIsDeleted(false);
             userRepository.save(student);
         }
     }
+    */
 }

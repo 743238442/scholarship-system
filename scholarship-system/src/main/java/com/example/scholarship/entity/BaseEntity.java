@@ -39,4 +39,13 @@ public abstract class BaseEntity {
 
     @Column(name = "updated_by")
     private Long updatedBy;
+
+    // 手动添加getId方法，解决Lombok问题
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }
