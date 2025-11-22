@@ -9,6 +9,7 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.Size;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
@@ -21,7 +22,9 @@ import java.math.BigDecimal;
 @Table(name = "tbl_academic_record")
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class AcademicRecord extends BaseEntity {
+public class AcademicRecord extends BaseEntity implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @NotNull(message = "学生ID不能为空")
     @Column(name = "student_id", nullable = false)
@@ -52,52 +55,5 @@ public class AcademicRecord extends BaseEntity {
     @JoinColumn(name = "student_id", insertable = false, updatable = false)
     private Student student;
 
-    // 手动添加getter和setter方法
-    public Long getStudentId() {
-        return studentId;
-    }
 
-    public void setStudentId(Long studentId) {
-        this.studentId = studentId;
-    }
-
-    public String getCourseName() {
-        return courseName;
-    }
-
-    public void setCourseName(String courseName) {
-        this.courseName = courseName;
-    }
-
-    public BigDecimal getCredit() {
-        return credit;
-    }
-
-    public void setCredit(BigDecimal credit) {
-        this.credit = credit;
-    }
-
-    public BigDecimal getGpa() {
-        return gpa;
-    }
-
-    public void setGpa(BigDecimal gpa) {
-        this.gpa = gpa;
-    }
-
-    public String getSemester() {
-        return semester;
-    }
-
-    public void setSemester(String semester) {
-        this.semester = semester;
-    }
-
-    public Student getStudent() {
-        return student;
-    }
-
-    public void setStudent(Student student) {
-        this.student = student;
-    }
 }

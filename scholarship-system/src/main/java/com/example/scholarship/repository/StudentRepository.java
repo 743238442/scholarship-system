@@ -45,7 +45,7 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     /**
      * 根据班级查找学生
      */
-    List<Student> findByClassName(String className);
+    List<Student> findByClazz(String clazz);
 
     /**
      * 根据年级查找学生
@@ -123,6 +123,12 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
      */
     @Query("SELECT s FROM Student s WHERE s.user.username = :username")
     Optional<Student> findByUserUsername(@Param("username") String username);
+
+    /**
+     * 根据用户ID查找学生，同时加载关联的学业记录
+     */
+    @Query("SELECT DISTINCT s FROM Student s LEFT JOIN FETCH s.academicRecords WHERE s.user.id = :userId")
+    Optional<Student> findByUserId(Long userId);
 
     /**
      * 查找已毕业的学生

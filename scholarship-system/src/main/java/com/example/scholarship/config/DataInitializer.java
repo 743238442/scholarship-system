@@ -76,9 +76,8 @@ public class DataInitializer implements CommandLineRunner {
                 student.setName("李小明");
                 student.setGender(Student.Gender.MALE);
                 student.setCollege("计算机科学与技术学院");
-                student.setDepartment("计算机科学与技术系");
+
                 student.setMajor("计算机科学与技术");
-                student.setClassName("计科2021-1");
                 student.setClazz("计科2021-1");
                 student.setGrade("2021");
                 student.setContact("13800000001");
@@ -113,9 +112,8 @@ public class DataInitializer implements CommandLineRunner {
                 student.setName("张小明");
                 student.setGender(Student.Gender.MALE);
                 student.setCollege("软件工程学院");
-                student.setDepartment("软件工程系");
+
                 student.setMajor("软件工程");
-                student.setClassName("软工2021-1");
                 student.setClazz("软工2021-1");
                 student.setGrade("2021");
                 student.setContact("13800000002");

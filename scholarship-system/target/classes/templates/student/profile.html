@@ -102,7 +102,7 @@
                                 
                                 <div class="row mb-3">
                                     <div class="col-sm-3 info-label">班级：</div>
-                                    <div class="col-sm-9 info-value" th:text="${student.className}">软件工程2021-1班</div>
+                                    <div class="col-sm-9 info-value" th:text="${student.clazz}">软件工程2021-1班</div>
                                 </div>
                                 
                                 <div class="row mb-3">
@@ -123,7 +123,7 @@
                                 <div class="row mb-4">
                                     <div class="col-sm-3 info-label">平均GPA：</div>
                                     <div class="col-sm-9 info-value">
-                                        <span class="badge bg-success fs-6 px-3 py-2" th:text="${stats.averageGpa}">3.75</span>
+                                        <span class="badge bg-success fs-6 px-3 py-2" th:text="${#numbers.formatDecimal(stats.averageGpa, 1, 2)}">3.75</span>
                                         <small class="text-muted ms-2">
                                             (<span th:text="${stats.totalCourses}">12</span> 门课程)
                                         </small>
@@ -144,7 +144,7 @@
                         <!-- 底部编辑按钮 -->
                         <div class="row mt-4">
                             <div class="col-12">
-                                <button type="button" class="btn btn-primary edit-btn" onclick="alert('编辑功能暂未实现')">
+                                <button type="button" class="btn btn-secondary edit-btn" disabled>
                                     <i class="bi bi-pencil"></i> 编辑
                                 </button>
                             </div>
