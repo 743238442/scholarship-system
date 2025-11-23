@@ -2,14 +2,19 @@ package com.example.scholarship.config;
 
 import com.example.scholarship.entity.User;
 import com.example.scholarship.entity.Student;
+import com.example.scholarship.entity.ScholarshipType;
 import com.example.scholarship.repository.UserRepository;
 import com.example.scholarship.repository.StudentRepository;
+import com.example.scholarship.repository.ScholarshipTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 数据初始化配置
@@ -26,6 +31,9 @@ public class DataInitializer implements CommandLineRunner {
 
     @Autowired
     private StudentRepository studentRepository;
+    
+    @Autowired
+    private ScholarshipTypeRepository scholarshipTypeRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -33,6 +41,8 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         try {
+            System.out.println("开始初始化数据...");
+            
             // 短暂延迟以确保数据库初始化完成
             Thread.sleep(2000);
             
@@ -128,12 +138,46 @@ public class DataInitializer implements CommandLineRunner {
             }
         }
             
+            // 初始化奖学金类型数据
+            initScholarshipTypes();
+            
             // 验证创建结果
             System.out.println("数据初始化完成，当前用户总数: " + userRepository.count());
+            System.out.println("数据初始化完成！");
             
         } catch (Exception e) {
             System.err.println("数据初始化失败: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+    
+    /**
+     * 初始化奖学金类型数据
+     */
+    private void initScholarshipTypes() {
+        System.out.println("开始初始化奖学金类型数据...");
+        
+        // 创建奖学金类型数据
+        createScholarshipType("国家奖学金", new BigDecimal("8000.00"), "奖励特别优秀学生", "GPA≥3.8，综合排名前5%");
+        createScholarshipType("国家励志奖学金", new BigDecimal("5000.00"), "奖励品学兼优的家庭经济困难学生", "GPA≥3.5，家庭经济困难，综合排名前10%");
+        createScholarshipType("校级一等奖学金", new BigDecimal("3000.00"), "奖励学习成绩优异的学生", "GPA≥3.7，综合排名前15%");
+        createScholarshipType("校级二等奖学金", new BigDecimal("2000.00"), "奖励学习成绩良好的学生", "GPA≥3.5，综合排名前25%");
+        createScholarshipType("校级三等奖学金", new BigDecimal("1000.00"), "奖励学习成绩合格的学生", "GPA≥3.2，综合排名前40%");
+        
+        System.out.println("奖学金类型数据初始化完成");
+    }
+    
+    private void createScholarshipType(String name, BigDecimal amount, String description, String eligibilityCriteria) {
+        if (!scholarshipTypeRepository.existsByName(name)) {
+            ScholarshipType type = new ScholarshipType();
+            type.setName(name);
+            type.setAmount(amount);
+            type.setDescription(description);
+            type.setEligibilityCriteria(eligibilityCriteria);
+            scholarshipTypeRepository.save(type);
+            System.out.println("已创建奖学金类型: " + name);
+        } else {
+            System.out.println("奖学金类型已存在: " + name);
         }
     }
 }

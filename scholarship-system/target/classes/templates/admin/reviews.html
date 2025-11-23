@@ -17,6 +17,18 @@
     </div>
 </nav>
 
+<!-- 消息提示 -->
+<div class="container mt-3">
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible">
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <span th:text="${successMessage}"></span>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible">
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <span th:text="${errorMessage}"></span>
+    </div>
+</div>
+
 <div class="container mt-4">
     <div class="row">
         <div class="col-12">
@@ -31,7 +43,7 @@
             <div class="card text-white bg-primary">
                 <div class="card-body">
                     <h5 class="card-title">待审核</h5>
-                    <h3>25</h3>
+                    <h3 th:text="${pendingCount}">0</h3>
                     <small>份申请</small>
                 </div>
             </div>
@@ -41,7 +53,7 @@
             <div class="card text-white bg-success">
                 <div class="card-body">
                     <h5 class="card-title">已通过</h5>
-                    <h3>156</h3>
+                    <h3 th:text="${approvedCount}">0</h3>
                     <small>份申请</small>
                 </div>
             </div>
@@ -51,7 +63,7 @@
             <div class="card text-white bg-danger">
                 <div class="card-body">
                     <h5 class="card-title">已拒绝</h5>
-                    <h3>34</h3>
+                    <h3 th:text="${rejectedCount}">0</h3>
                     <small>份申请</small>
                 </div>
             </div>
@@ -61,7 +73,7 @@
             <div class="card text-white bg-warning">
                 <div class="card-body">
                     <h5 class="card-title">总申请</h5>
-                    <h3>215</h3>
+                    <h3 th:text="${totalCount}">0</h3>
                     <small>份申请</small>
                 </div>
             </div>
@@ -88,37 +100,35 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>#APP001</td>
-                                <td>张三</td>
-                                <td>国家奖学金</td>
-                                <td>2024-11-15</td>
-                                <td><span class="badge bg-warning">待审核</span></td>
+                            <tr th:each="review : ${applications}">
+                                <td th:text="'#REV' + ${review.id}">#REV001</td>
+                                <td th:text="${review.student.name}">学生姓名</td>
+                                <td th:text="${review.scholarshipType.name}">奖学金类型</td>
+                                <td th:text="${#dates.format(review.createdAt, 'yyyy-MM-dd')}">2024-11-15</td>
+                                <td>
+                                    <span th:switch="${review.reviewStatus}">
+                                        <span th:case="'pending'" class="badge bg-warning">待审核</span>
+                                        <span th:case="'approved'" class="badge bg-success">已通过</span>
+                                        <span th:case="'rejected'" class="badge bg-danger">已拒绝</span>
+                                        <span th:case="*" class="badge bg-secondary">未知状态</span>
+                                    </span>
+                                </td>
                                 <td>
                                     <button class="btn btn-sm btn-primary">查看</button>
-                                    <button class="btn btn-sm btn-success">通过</button>
-                                    <button class="btn btn-sm btn-danger">拒绝</button>
+                                    <span th:if="${review.reviewStatus} == 'pending'">
+                                        <form th:action="@{/admin/review/{id}/process(id=${review.id})}" method="post" style="display: inline-block;">
+                                            <input type="hidden" name="action" value="approve">
+                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('确认通过该申请吗？');">通过</button>
+                                        </form>
+                                        <form th:action="@{/admin/review/{id}/process(id=${review.id})}" method="post" style="display: inline-block;">
+                                            <input type="hidden" name="action" value="reject">
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('确认拒绝该申请吗？');">拒绝</button>
+                                        </form>
+                                    </span>
                                 </td>
                             </tr>
-                            <tr>
-                                <td>#APP002</td>
-                                <td>李四</td>
-                                <td>校级奖学金</td>
-                                <td>2024-11-14</td>
-                                <td><span class="badge bg-success">已通过</span></td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary">查看</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>#APP003</td>
-                                <td>王五</td>
-                                <td>励志奖学金</td>
-                                <td>2024-11-13</td>
-                                <td><span class="badge bg-danger">已拒绝</span></td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary">查看</button>
-                                </td>
+                            <tr th:if="${applications.empty}">
+                                <td colspan="6" class="text-center">暂无申请记录</td>
                             </tr>
                         </tbody>
                     </table>

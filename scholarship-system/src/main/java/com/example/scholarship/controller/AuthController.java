@@ -75,11 +75,15 @@ public class AuthController {
     /**
      * 管理员审核页面
      */
-    @GetMapping("/admin/reviews")
+    // 注意：此路径已在AdminController中实现，这里不再重复映射
+    // 如需使用，可取消注释并修改为其他路径
+    /*
+    @GetMapping("/admin/reviews-old")
     public String adminReviews(Model model) {
         model.addAttribute("pageTitle", "申请审核");
         return "admin/reviews";
     }
+    */
 
     /**
      * 默认仪表板
