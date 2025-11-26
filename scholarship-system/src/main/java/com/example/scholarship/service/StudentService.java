@@ -1,7 +1,6 @@
 package com.example.scholarship.service;
 
 import com.example.scholarship.entity.Student;
-
 import java.util.Optional;
 
 /**
@@ -18,4 +17,6 @@ public interface StudentService {
      * @return 包含完整信息的Student对象
      */
     Optional<Student> findByUserId(Long userId);
+    
+
 }

@@ -19,12 +19,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.security.Principal;
-
 import java.util.List;
 import java.util.Date;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.stream.Collectors;
+import java.lang.Exception;
 
 /**
  * 学生奖学金申请控制器
@@ -66,6 +66,9 @@ public class StudentScholarshipController {
             Student student = studentRepository.findByUserUsername(username)
                 .orElseThrow(() -> new Exception("未找到学生信息，请联系管理员"));
             
+            // 添加学生姓名用于欢迎信息
+            model.addAttribute("studentName", student.getName());
+            
             // 创建用户对象，设置真实的学生信息
             User currentUser = student.getUser();
             // 确保realName使用学生的真实姓名，username使用学号
@@ -75,6 +78,7 @@ public class StudentScholarshipController {
         } catch (Exception e) {
             // 如果获取失败，提供默认信息
             model.addAttribute("errorMessage", "获取学生信息失败: " + e.getMessage());
+            model.addAttribute("studentName", "未知用户");
             
             // 创建默认用户对象，避免页面错误
             User defaultUser = new User();
@@ -134,19 +138,63 @@ public class StudentScholarshipController {
             Student student = studentRepository.findByUserUsername(username)
                 .orElseThrow(() -> new Exception("未找到学生信息，请联系管理员"));
             
-            // 先获取所有申请记录，然后过滤出当前学生的申请
-            List<Review> allApplications = reviewRepository.findAllByOrderByCreatedAtDesc();
-            List<Review> studentApplications = allApplications.stream()
-                .filter(review -> review.getStudent().getId().equals(student.getId()))
-                .collect(Collectors.toList());
+            // 获取当前学生的姓名，用于页面显示
+            model.addAttribute("studentName", student.getName());
+            
+            // 创建用户对象，设置真实的学生信息
+            User currentUser = student.getUser();
+            currentUser.setRealName(student.getName());
+            currentUser.setUsername(student.getStudentNo());
+            model.addAttribute("currentUser", currentUser);
+            
+            // 获取学生ID
+            Long studentId = student.getId();
+            
+            // 根据学生ID直接查询申请记录，避免N+1查询问题
+            List<Review> studentApplications = reviewRepository.findByStudentIdOrderByCreatedAtDesc(studentId);
+            
+            // 转换为DTO对象列表，确保字段名和格式与模板一致
+            List<Object> reviewDtos = studentApplications.stream().map(review -> {
+                // 创建一个Map对象来模拟DTO
+                java.util.Map<String, Object> dto = new java.util.HashMap<>();
+                dto.put("id", review.getId());
+                
+                // 处理奖学金类型信息
+                if (review.getScholarshipType() != null) {
+                    dto.put("scholarshipType", java.util.Map.of("name", review.getScholarshipType().getName()));
+                } else {
+                    dto.put("scholarshipType", java.util.Map.of("name", "未知类型"));
+                }
+                
+                // 将LocalDateTime转换为java.util.Date以兼容Thymeleaf的#dates.format
+                if (review.getCreatedAt() != null) {
+                    dto.put("createdAt", Date.from(review.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant()));
+                } else {
+                    dto.put("createdAt", new Date());
+                }
+                // 将reviewStatus转换为大写的status，以匹配模板期望
+                dto.put("status", review.getReviewStatus().toUpperCase());
+                // 将comments转换为comment，以匹配模板期望
+                dto.put("comment", review.getComments());
+                
+                return dto;
+            }).collect(Collectors.toList());
             
             // 添加到model中，使用reviewDtos名称以匹配模板
-            model.addAttribute("reviewDtos", studentApplications);
+            model.addAttribute("reviewDtos", reviewDtos);
         } catch (Exception e) {
             model.addAttribute("errorMessage", "加载申请记录失败: " + e.getMessage());
             model.addAttribute("reviewDtos", List.of()); // 提供空列表以避免页面错误
+            // 添加默认的学生信息以避免页面错误
+            model.addAttribute("studentName", "未知用户");
+            User defaultUser = new User();
+            defaultUser.setUsername("未知");
+            defaultUser.setRealName("未知");
+            model.addAttribute("currentUser", defaultUser);
         }
         
         return "student/my-applications";
     }
+    
+
 }

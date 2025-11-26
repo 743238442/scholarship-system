@@ -13,6 +13,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -26,6 +28,7 @@ import java.util.Map;
  * @version 1.0.0
  */
 @Controller
+@RequestMapping("/student")
 public class StudentController {
 
     private static final Logger log = LoggerFactory.getLogger(StudentController.class);
@@ -37,10 +40,16 @@ public class StudentController {
     private StudentService studentService;
 
     /**
+     * 学生申请记录页面
+     * 只允许STUDENT角色访问
+     */
+    // 学生申请记录功能已在StudentScholarshipController中实现
+
+    /**
      * 学生个人资料页面
      * 只允许STUDENT角色访问
      */
-    @GetMapping("/student/profile")
+    @GetMapping("/profile")
     @PreAuthorize("hasRole('STUDENT')")
     public String studentProfile(Authentication authentication, Model model) {
         try {
@@ -104,6 +113,11 @@ public class StudentController {
             stats.put("totalCredits", totalCredits);
             stats.put("excellentCourses", excellentCourseCount);
 
+            // 添加个性化欢迎信息
+            String welcomeMessage = "欢迎回来，" + student.getName() + "同学！";
+            model.addAttribute("welcomeMessage", welcomeMessage);
+            model.addAttribute("studentName", student.getName()); // 为顶部欢迎区域提供学生姓名
+            
             // 添加模型属性
             model.addAttribute("student", student);
             model.addAttribute("academicRecords", academicRecords);

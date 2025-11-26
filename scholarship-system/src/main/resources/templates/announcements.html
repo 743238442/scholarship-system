@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公告列表 - 高校奖学金管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- 导航栏 -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="/">
+                    <i class="bi bi-mortarboard"></i>
+                    高校奖学金管理系统
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">首页</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/student">学生管理</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/scholarship">奖学金管理</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/announcements">公告列表</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item" th:if="${#authentication?.name}">
+                            <span class="navbar-text me-3">
+                                欢迎，<span th:text="${#authentication?.name}">用户名</span>
+                            </span>
+                        </li>
+                        <li class="nav-item" th:if="${#authentication?.name}">
+                            <a class="nav-link" href="/logout">退出登录</a>
+                        </li>
+                        <li class="nav-item" th:if="!${#authentication?.name}">
+                            <a class="nav-link" href="/login">登录</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 主要内容 -->
+        <main class="container mt-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-megaphone-fill"></i>
+                                公告列表
+                            </h5>
+                        </div>
+                    <div class="card-body">
+                            <!-- 添加公告按钮（仅管理员可见） -->
+                            <div class="mb-4" th:if="${#authentication?.name} and ${#authorization?.expression('hasRole(''ADMIN'')')}">
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAnnouncementModal">
+                                    <i class="bi bi-plus-circle"></i>
+                                    发布新公告
+                                </button>
+                            </div>
+
+                            <!-- 公告列表 -->
+                            <div class="announcement-list">
+                                <div class="mb-3" th:each="announcement : ${announcements}">
+                                    <div class="card announcement-card border-info cursor-pointer">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h5 class="card-title mb-0" th:text="${announcement.title}"></h5>
+                                            <span class="text-muted small" th:text="${#dates.format(announcement.publishedAt, 'yyyy-MM-dd')}"></span>
+                                        </div>
+                                        <div class="card-body">
+                                            <!-- 内容摘要 -->
+                                            <div class="announcement-summary" th:text="${#strings.abbreviate(announcement.content, 100)}"></div>
+                                            <div class="text-center mt-2">
+                                                <a th:href="@{/announcements/{id}(id=${announcement.id})}" class="text-info">
+                                                    点击查看全文
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 无公告提示 -->
+                                <div class="alert alert-info text-center" th:if="${#lists.isEmpty(announcements)}">
+                                    暂无公告信息
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 页脚 -->
+        <footer class="bg-light text-center text-muted py-3 mt-5">
+            <div class="container">
+                <span>&copy; 2024 高校奖学金管理系统. All rights reserved.</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 添加公告模态框 -->
+    <div class="modal fade" id="addAnnouncementModal" tabindex="-1" aria-labelledby="addAnnouncementModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAnnouncementModalLabel">发布新公告</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addAnnouncementForm">
+                        <div class="mb-3">
+                            <label for="announcementTitle" class="form-label">公告标题</label>
+                            <input type="text" class="form-control" id="announcementTitle" name="title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="announcementContent" class="form-label">公告内容</label>
+                            <textarea class="form-control" id="announcementContent" name="content" rows="6" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="submitAnnouncement">发布</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+
+            // 发布公告功能
+            $('#submitAnnouncement').on('click', function() {
+                const form = $('#addAnnouncementForm');
+                const title = form.find('input[name="title"]').val();
+                const content = form.find('textarea[name="content"]').val();
+                
+                if (!title || !content) {
+                    alert('请填写完整的公告信息');
+                    return;
+                }
+                
+                $.ajax({
+                    url: '/api/announcements',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ title: title, content: content }),
+                    success: function() {
+                        alert('公告发布成功！');
+                        $('#addAnnouncementModal').modal('hide');
+                        // 刷新页面
+                        location.reload();
+                    },
+                    error: function() {
+                        alert('公告发布失败，请重试');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

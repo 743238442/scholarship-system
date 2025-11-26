@@ -31,4 +31,6 @@ public class StudentServiceImpl implements StudentService {
         // 通过自定义查询方法根据userId查找学生
         return studentRepository.findByUserId(userId);
     }
+    
+
 }

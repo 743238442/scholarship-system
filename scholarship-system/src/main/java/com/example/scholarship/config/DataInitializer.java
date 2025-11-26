@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 数据初始化配置
@@ -47,96 +48,29 @@ public class DataInitializer implements CommandLineRunner {
             Thread.sleep(2000);
             
             // 创建管理员用户
-        if (!userRepository.existsByUsername("admin")) {
-            User admin = new User();
-            admin.setUsername("admin");
-            admin.setPassword(passwordEncoder.encode("admin123"));
-            admin.setRealName("管理员");
-            admin.setEmail("admin@example.com");
-            admin.setUserType(User.UserType.ADMIN);
-            admin.setStatus(User.UserStatus.ACTIVE);
-            userRepository.save(admin);
-            System.out.println("创建管理员用户: admin");
-        } else {
-            System.out.println("管理员用户已存在，跳过创建");
-        }
-
-        // 创建学生用户
-        if (!userRepository.existsByUsername("student")) {
-            User studentUser = new User();
-            studentUser.setUsername("student");
-            studentUser.setPassword(passwordEncoder.encode("student123"));
-            studentUser.setRealName("李小明");
-            studentUser.setEmail("student@example.com");
-            studentUser.setUserType(User.UserType.STUDENT);
-            studentUser.setStatus(User.UserStatus.ACTIVE);
-            studentUser = userRepository.save(studentUser);
-        } else {
-            System.out.println("学生用户已存在，跳过创建用户");
-        }
-        
-        // 为学生用户创建或更新对应的Student记录
-        User studentUser = userRepository.findByUsername("student").orElse(null);
-        if (studentUser != null) {
-            if (studentRepository.existsByStudentNo("20210001")) {
-                System.out.println("学生记录已存在，跳过创建");
+            if (!userRepository.existsByUsername("admin")) {
+                User admin = new User();
+                admin.setUsername("admin");
+                admin.setPassword(passwordEncoder.encode("admin123"));
+                admin.setRealName("管理员");
+                admin.setEmail("admin@example.com");
+                admin.setUserType(User.UserType.ADMIN);
+                admin.setStatus(User.UserStatus.ACTIVE);
+                userRepository.save(admin);
+                System.out.println("创建管理员用户: admin");
             } else {
-                Student student = new Student();
-                student.setStudentNo("20210001");
-                student.setName("李小明");
-                student.setGender(Student.Gender.MALE);
-                student.setCollege("计算机科学与技术学院");
-
-                student.setMajor("计算机科学与技术");
-                student.setClazz("计科2021-1");
-                student.setGrade("2021");
-                student.setContact("13800000001");
-                student.setEnrollmentDate(LocalDate.parse("2021-09-01"));
-                student.setIsGraduated(false);
-                student.setIdCard("110101200101010001");
-                student.setStatus(Student.StudentStatus.ACTIVE);
-                student.setStudyYears(4);
-                student.setUser(studentUser);
-                studentRepository.save(student);
-                System.out.println("创建学生记录: 学号20210001, 姓名李小明");
+                System.out.println("管理员用户已存在，跳过创建");
             }
-        }
 
-            // 创建新学生用户 - 张小明
-        if (!userRepository.existsByUsername("zhangxm")) {
-            User zhangxmUser = new User();
-            zhangxmUser.setUsername("zhangxm");
-            zhangxmUser.setPassword(passwordEncoder.encode("zhangxm123"));
-            zhangxmUser.setRealName("张小明");
-            zhangxmUser.setEmail("zhangxm@example.com");
-            zhangxmUser.setUserType(User.UserType.STUDENT);
-            zhangxmUser.setStatus(User.UserStatus.ACTIVE);
-            zhangxmUser = userRepository.save(zhangxmUser);
+            // 初始化学生用户1
+            initializeStudent("lixm", "123456", "李小明", "lixm@example.com", "20210001", 
+                Student.Gender.MALE, "计算机科学与技术学院", "计算机科学与技术", "计科2021-1", 
+                "2021", "13800000001", LocalDate.parse("2021-09-01"), "110101200101010001");
             
-            // 为zhangxm用户创建对应的Student记录
-            if (studentRepository.existsByStudentNo("20210002")) {
-                System.out.println("学生记录已存在，跳过创建");
-            } else {
-                Student student = new Student();
-                student.setStudentNo("20210002");
-                student.setName("张小明");
-                student.setGender(Student.Gender.MALE);
-                student.setCollege("软件工程学院");
-
-                student.setMajor("软件工程");
-                student.setClazz("软工2021-1");
-                student.setGrade("2021");
-                student.setContact("13800000002");
-                student.setEnrollmentDate(LocalDate.parse("2021-09-01"));
-                student.setIsGraduated(false);
-                student.setIdCard("110101200101010002");
-                student.setStatus(Student.StudentStatus.ACTIVE);
-                student.setStudyYears(4);
-                student.setUser(zhangxmUser);
-                studentRepository.save(student);
-                System.out.println("创建学生记录: 学号20210002, 姓名张小明");
-            }
-        }
+            // 初始化学生用户2
+            initializeStudent("zhangxm", "123456", "张小明", "zhangxm@example.com", "20210002", 
+                Student.Gender.MALE, "计算机科学与技术学院", "软件工程", "软工2021-1", 
+                "2021", "13800000002", LocalDate.parse("2021-09-01"), "110101200101010002");
             
             // 初始化奖学金类型数据
             initScholarshipTypes();
@@ -178,6 +112,97 @@ public class DataInitializer implements CommandLineRunner {
             System.out.println("已创建奖学金类型: " + name);
         } else {
             System.out.println("奖学金类型已存在: " + name);
+        }
+    }
+    
+    /**
+     * 初始化学生用户及其对应的学生记录
+     * @param username 用户名
+     * @param password 密码
+     * @param realName 真实姓名
+     * @param email 邮箱
+     * @param studentNo 学号
+     * @param gender 性别
+     * @param college 学院
+     * @param major 专业
+     * @param clazz 班级
+     * @param grade 年级
+     * @param contact 联系方式
+     * @param enrollmentDate 入学日期
+     * @param idCard 身份证号
+     */
+    private void initializeStudent(String username, String password, String realName, String email, String studentNo,
+                                  Student.Gender gender, String college, String major, String clazz,
+                                  String grade, String contact, LocalDate enrollmentDate, String idCard) {
+        try {
+            // 首先检查邮箱是否已存在（防止email唯一约束冲突）
+            if (userRepository.existsByEmail(email)) {
+                System.out.println("邮箱已存在: " + email + "，跳过创建用户");
+                return;
+            }
+            
+            // 检查用户是否已存在
+            User user = userRepository.findByUsername(username).orElse(null);
+            if (user == null) {
+                // 创建新用户
+                user = new User();
+                user.setUsername(username);
+                user.setPassword(passwordEncoder.encode(password));
+                user.setRealName(realName);
+                user.setEmail(email);
+                user.setUserType(User.UserType.STUDENT);
+                user.setStatus(User.UserStatus.ACTIVE);
+                try {
+                    user = userRepository.save(user);
+                    System.out.println("创建学生用户: " + username + ", 邮箱: " + email);
+                } catch (Exception e) {
+                    System.err.println("保存用户时出错: " + e.getMessage());
+                    if (e.getMessage().contains("constraint")) {
+                        System.err.println("可能是邮箱重复导致的约束冲突");
+                    }
+                    return; // 如果用户创建失败，不再继续
+                }
+            } else {
+                System.out.println("学生用户已存在: " + username);
+                // 确保邮箱一致性
+                if (!email.equals(user.getEmail())) {
+                    System.out.println("警告: 用户邮箱不一致，当前邮箱: " + user.getEmail() + ", 预期邮箱: " + email);
+                }
+            }
+            
+            // 检查学生记录是否已存在
+            Optional<Student> existingStudent = studentRepository.findByUser(user);
+            if (existingStudent.isPresent()) {
+                System.out.println("学生记录已存在: " + user.getUsername() + " - " + user.getRealName());
+            } else if (studentRepository.existsByStudentNo(studentNo)) {
+                System.out.println("学号已存在: " + studentNo + "，跳过创建学生记录");
+            } else {
+                try {
+                    // 创建学生记录
+                    Student student = new Student();
+                    student.setStudentNo(studentNo);
+                    student.setName(realName);
+                    student.setGender(gender);
+                    student.setCollege(college);
+                    student.setMajor(major);
+                    student.setClazz(clazz);
+                    student.setGrade(grade);
+                    student.setContact(contact);
+                    student.setEnrollmentDate(enrollmentDate);
+                    student.setIsGraduated(false);
+                    student.setIdCard(idCard);
+                    student.setStatus(Student.StudentStatus.ACTIVE);
+                    student.setStudyYears(4);
+                    student.setUser(user);
+                    studentRepository.save(student);
+                    System.out.println("创建学生记录: " + studentNo + " - " + realName);
+                } catch (Exception e) {
+                    System.err.println("创建学生记录时出错: " + e.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("初始化学生信息失败: " + username);
+            e.printStackTrace();
         }
     }
 }

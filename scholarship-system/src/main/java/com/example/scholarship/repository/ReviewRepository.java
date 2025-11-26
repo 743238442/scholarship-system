@@ -31,4 +31,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
      * 查找所有申请记录，按创建时间倒序
      */
     List<Review> findAllByOrderByCreatedAtDesc();
+    
+    /**
+     * 根据学生ID查找评审记录，按创建时间倒序
+     */
+    List<Review> findByStudentIdOrderByCreatedAtDesc(Long studentId);
 }

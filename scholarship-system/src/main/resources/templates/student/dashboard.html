@@ -15,7 +15,7 @@
         </a>
         <div class="navbar-nav ms-auto">
             <a class="nav-link" href="/student/profile">
-                <i class="bi bi-person-circle"></i> 个人资料
+                <i class="bi bi-person-circle"></i> 个人中心
             </a>
             <span class="navbar-text me-3" th:text="'欢迎, ' + ${studentName}">欢迎, 学生</span>
             <a class="nav-link" href="/logout">
@@ -60,6 +60,50 @@
                     <h5 class="card-title">个人资料</h5>
                     <p class="card-text">管理您的个人信息和账户</p>
                     <a href="/student/profile" class="btn btn-success">编辑资料</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 公告显示区域 -->
+    <div class="row mt-6">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-megaphone-fill"></i>
+                        系统公告
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="announcement-list">
+                        <div class="mb-3" th:each="announcement : ${announcements}">
+                            <div class="card border-info">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0">
+                                        <a th:href="@{/student/announcement/{id}(id=${announcement.id})}" 
+                                           th:text="${announcement.title}" 
+                                           class="text-decoration-none text-info hover:text-primary"></a>
+                                    </h5>
+                                    <span class="text-muted small" th:text="${#temporals.format(announcement.publishedAt, 'yyyy-MM-dd HH:mm')}"></span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="announcement-summary" th:text="${#strings.abbreviate(announcement.content, 200)}"></div>
+                                    <div class="mt-3">
+                                        <a th:href="@{/student/announcement/{id}(id=${announcement.id})}" 
+                                           class="btn btn-sm btn-outline-info">
+                                            <i class="bi bi-eye-fill"></i> 查看详情
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 无公告提示 -->
+                        <div class="alert alert-info text-center" th:if="${#lists.isEmpty(announcements)}">
+                            暂无系统公告
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

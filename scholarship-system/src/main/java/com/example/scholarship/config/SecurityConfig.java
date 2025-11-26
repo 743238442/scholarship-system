@@ -97,7 +97,7 @@ public class SecurityConfig {
             // 根据用户角色决定跳转地址
             if (authentication.getAuthorities().stream()
                     .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
-                targetUrl = "/admin/reviews";
+                targetUrl = "/admin/dashboard";
             } else if (authentication.getAuthorities().stream()
                     .anyMatch(auth -> auth.getAuthority().equals("ROLE_STUDENT"))) {
                 targetUrl = "/student/dashboard";
@@ -123,6 +123,7 @@ public class SecurityConfig {
                     "/login",
                     "/register",
                     "/api/auth/**",
+                    "/api/announcements", // 公告接口GET请求公开访问
                     "/css/**",
                     "/js/**",
                     "/images/**",
