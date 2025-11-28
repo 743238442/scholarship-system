@@ -120,4 +120,84 @@ public class AdminController {
         
         return "redirect:/admin/reviews";
     }
+    
+    /**
+     * 显示用户管理页面
+     */
+    @GetMapping("/user-management")
+    public String userManagement(Model model) {
+        // 获取所有用户
+        List<User> allUsers = userRepository.findAll();
+        
+        // 统计各类型用户数量
+        long adminCount = allUsers.stream().filter(u -> User.UserType.ADMIN.equals(u.getUserType())).count();
+        long teacherCount = allUsers.stream().filter(u -> User.UserType.TEACHER.equals(u.getUserType())).count();
+        long studentCount = allUsers.stream().filter(u -> User.UserType.STUDENT.equals(u.getUserType())).count();
+        
+        // 统计用户状态数量
+        long activeCount = allUsers.stream().filter(u -> User.UserStatus.ACTIVE.equals(u.getStatus())).count();
+        long inactiveCount = allUsers.stream().filter(u -> User.UserStatus.INACTIVE.equals(u.getStatus())).count();
+        
+        // 添加到模型
+        model.addAttribute("users", allUsers);
+        model.addAttribute("adminCount", adminCount);
+        model.addAttribute("teacherCount", teacherCount);
+        model.addAttribute("studentCount", studentCount);
+        model.addAttribute("activeCount", activeCount);
+        model.addAttribute("inactiveCount", inactiveCount);
+        model.addAttribute("totalCount", allUsers.size());
+        model.addAttribute("pageTitle", "用户管理");
+        
+        return "admin/user-management";
+    }
+    
+    /**
+     * 更新用户状态
+     */
+    @PostMapping("/user/{userId}/update-status")
+    public String updateUserStatus(
+            @PathVariable("userId") Long userId,
+            @RequestParam("status") String status,
+            RedirectAttributes redirectAttributes) {
+        try {
+            // 查找用户
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("用户不存在"));
+            
+            // 更新用户状态
+            user.setStatus(User.UserStatus.valueOf(status));
+            userRepository.save(user);
+            
+            redirectAttributes.addFlashAttribute("successMessage", "用户状态已更新");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "更新用户状态时发生错误: " + e.getMessage());
+        }
+        
+        return "redirect:/admin/user-management";
+    }
+    
+    /**
+     * 更新用户权限
+     */
+    @PostMapping("/user/{userId}/update-role")
+    public String updateUserRole(
+            @PathVariable("userId") Long userId,
+            @RequestParam("userType") String userType,
+            RedirectAttributes redirectAttributes) {
+        try {
+            // 查找用户
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("用户不存在"));
+            
+            // 更新用户类型
+            user.setUserType(User.UserType.valueOf(userType));
+            userRepository.save(user);
+            
+            redirectAttributes.addFlashAttribute("successMessage", "用户权限已更新");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "更新用户权限时发生错误: " + e.getMessage());
+        }
+        
+        return "redirect:/admin/user-management";
+    }
 }

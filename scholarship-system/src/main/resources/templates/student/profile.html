@@ -9,13 +9,22 @@
     <!-- 引入 Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <style>
-        body {
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
             background-color: #f8f9fa;
         }
+        .container-fluid {
+            min-height: 100vh;
+        }
         .sidebar {
-            height: 100vh;
+            min-height: 100vh;
             background-color: #343a40;
             padding-top: 20px;
+            position: sticky;
+            top: 0;
+            height: 100%;
         }
         .sidebar a {
             color: rgba(255,255,255,.8);
@@ -175,6 +184,16 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- 返回按钮 -->
+                <!-- <div class="row mt-4">
+                    <div class="col-12 text-center">
+                        <a href="/student/dashboard" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> 返回仪表板
+                        </a>
+                    </div>
+                </div> -->
+                
             </main>
         </div>
     </div>

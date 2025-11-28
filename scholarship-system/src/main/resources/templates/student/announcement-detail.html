@@ -9,13 +9,22 @@
     <!-- 引入 Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <style>
-        body {
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
             background-color: #f8f9fa;
         }
+        .container-fluid {
+            min-height: 100vh;
+        }
         .sidebar {
-            height: 100vh;
+            min-height: 100vh;
             background-color: #343a40;
             padding-top: 20px;
+            position: sticky;
+            top: 0;
+            height: 100%;
         }
         .sidebar a {
             color: rgba(255,255,255,.8);
@@ -48,6 +57,31 @@
         .announcement-content {
             padding: 20px;
             line-height: 1.6;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+        .announcement-content p {
+            margin-bottom: 1rem;
+        }
+        .announcement-content img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 1rem auto;
+        }
+        .announcement-content pre {
+            white-space: pre-wrap;
+            overflow-x: auto;
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+        }
+        .announcement-content table {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            display: block;
         }
         .back-btn {
             margin-bottom: 20px;
@@ -64,7 +98,7 @@
                 </div>
                 <a href="/student/dashboard" class="mb-1"><i class="bi bi-house-door-fill"></i> 仪表板</a>
                 <a href="/student/apply" class="mb-1"><i class="bi bi-file-earmark-plus-fill"></i> 申请奖学金</a>
-                <a href="/student/status" class="mb-1"><i class="bi bi-list-check"></i> 申请状态</a>
+                <a href="/student/my-applications" class="mb-1"><i class="bi bi-list-check"></i> 我的申请</a>
                 <a href="/student/profile" class="mb-1"><i class="bi bi-person-circle"></i> 个人资料</a>
                 <a href="/logout" class="mt-5 text-danger"><i class="bi bi-box-arrow-right"></i> 退出登录</a>
             </nav>
@@ -90,7 +124,7 @@
                 <div class="announcement-container" th:if="${announcement != null}">
                     <!-- 公告头部 -->
                     <div class="announcement-header">
-                        <h2 class="text-info" th:text="${announcement.title}"></h2>
+                        <h4 class="text-primary" th:text="${announcement.title}"></h4>
                         <div class="text-muted mt-2">
                             <i class="bi bi-clock"></i>
                             <span th:text="${#temporals.format(announcement.publishedAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
