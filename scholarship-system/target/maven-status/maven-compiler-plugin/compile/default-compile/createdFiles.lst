@@ -17,14 +17,11 @@ com\example\scholarship\entity\Student$Gender.class
 com\example\scholarship\controller\StudentScholarshipController.class
 com\example\controller\AnnouncementPageController.class
 com\example\scholarship\entity\ScholarshipType.class
-com\example\scholarship\config\SecurityConfig$CustomAuthenticationSuccessHandler.class
 com\example\scholarship\controller\UserInfoController.class
 com\example\controller\AnnouncementController.class
 com\example\scholarship\controller\AdminAnnouncementController$AnnouncementRequest.class
 com\example\scholarship\service\impl\StudentServiceImpl.class
-com\example\scholarship\config\SecurityConfig.class
 com\example\scholarship\repository\AnnouncementRepository.class
-com\example\scholarship\config\CustomUserDetailsService.class
 com\example\scholarship\entity\User$UserStatus.class
 com\example\scholarship\config\WebMvcConfig.class
 com\example\scholarship\controller\SystemController.class

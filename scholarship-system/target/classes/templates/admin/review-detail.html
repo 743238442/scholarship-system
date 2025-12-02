@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奖学金申请审核详情 - 奖学金管理系统</title>
+    <!-- 引入 Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 引入 Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+        .container-fluid {
+            min-height: 100vh;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background-color: #343a40;
+            padding-top: 20px;
+            position: sticky;
+            top: 0;
+            height: 100%;
+        }
+        .sidebar a {
+            color: rgba(255,255,255,.8);
+            display: block;
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            transition: all 0.3s ease;
+        }
+        .sidebar a:hover {
+            background-color: #495057;
+            color: white;
+            transform: translateX(5px);
+        }
+        .sidebar a.active {
+            background-color: #0d6efd;
+            color: white;
+        }
+        .main-content {
+            padding: 30px;
+            background-color: #f8f9fa;
+        }
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 24px;
+            border: none;
+        }
+        .card-header {
+            background-color: #0d6efd;
+            color: white;
+            font-weight: 600;
+            border-radius: 8px 8px 0 0 !important;
+            padding: 16px 20px;
+        }
+        .card-body {
+            padding: 24px;
+        }
+        .info-item {
+            margin-bottom: 16px;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 120px;
+            display: inline-block;
+        }
+        .info-value {
+            color: #212529;
+        }
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .btn {
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+        .form-control {
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+            padding: 8px 12px;
+        }
+        .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        .alert {
+            border-radius: 6px;
+            border: none;
+        }
+        .section-title {
+            color: #212529;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 侧边栏 -->
+            <nav class="col-md-2 sidebar">
+                <div class="text-center mb-5">
+                    <h4 class="text-white">管理员中心</h4>
+                </div>
+                <a href="/admin/dashboard"><i class="bi bi-house-door-fill me-2"></i> 仪表盘</a>
+                <a href="/admin/reviews" class="active"><i class="bi bi-check-circle-fill me-2"></i> 申请审核</a>
+                <a href="/admin/announcements"><i class="bi bi-megaphone-fill me-2"></i> 公告管理</a>
+                <a href="/admin/user-management"><i class="bi bi-people-fill me-2"></i> 用户管理</a>
+                <a href="/logout" class="mt-5 text-danger"><i class="bi bi-box-arrow-right me-2"></i> 退出登录</a>
+            </nav>
+
+            <!-- 主内容区 -->
+            <main class="col-md-10 main-content">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="h3">奖学金申请审核详情</h1>
+                    <div class="text-right">
+                        <span class="text-muted">欢迎，</span>
+                        <span class="font-weight-bold">管理员</span>
+                    </div>
+                </div>
+                
+                <!-- 消息提示 -->
+                <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                    <span th:text="${successMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                    <span th:text="${errorMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                
+                <!-- 审核不存在提示 -->
+                <div th:unless="${review}">
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        审核记录不存在或已被删除
+                    </div>
+                    <a href="/admin/reviews" class="btn btn-primary mt-3">
+                        <i class="bi bi-arrow-left me-1"></i> 返回审核列表
+                    </a>
+                </div>
+                
+                <!-- 审核详情 -->
+                <div th:if="${review}">
+                    <!-- 基本信息卡片 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-info-circle-fill me-2"></i>基本信息
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <span class="info-label">审核ID：</span>
+                                        <span class="info-value">#REV<span th:text="${review.id}">001</span></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">审核状态：</span>
+                                        <span class="info-value">
+                                            <span th:switch="${review.reviewStatus}">
+                                                <span th:case="'pending'" class="status-badge bg-warning text-white">待审核</span>
+                                                <span th:case="'approved'" class="status-badge bg-success text-white">已通过</span>
+                                                <span th:case="'rejected'" class="status-badge bg-danger text-white">已拒绝</span>
+                                                <span th:case="*" class="status-badge bg-secondary text-white">未知状态</span>
+                                            </span>
+                                        </span>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <span class="info-label">学生姓名：</span>
+                                        <span class="info-value" th:text="${review.student.name}">学生姓名</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">奖学金类型：</span>
+                                        <span class="info-value" th:text="${review.scholarshipType.name}">奖学金类型</span>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 评审意见表单 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-pencil-square me-2"></i>评审意见
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/admin/review/{reviewId}/process(reviewId=${review.id})}" method="post" class="review-form">
+                                <div class="mb-4">
+                                    <label for="comments" class="form-label font-weight-bold">评审意见</label>
+                                    <textarea class="form-control" id="comments" name="comments" rows="5" placeholder="请输入评审意见..." th:text="${review.comments}"></textarea>
+                                </div>
+                                <input type="hidden" name="action" id="actionInput">
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="/admin/reviews" class="btn btn-secondary">
+                                        <i class="bi bi-arrow-left me-1"></i> 返回列表
+                                    </a>
+                                    
+                                    <div th:if="${review.reviewStatus eq 'pending'}" class="d-flex gap-3">
+                                        <button type="button" class="btn btn-success btn-process" data-action="approve">
+                                            <i class="bi bi-check-circle me-1"></i> 通过申请
+                                        </button>
+                                        <button type="button" class="btn btn-danger btn-process" data-action="reject">
+                                            <i class="bi bi-x-circle me-1"></i> 拒绝申请
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- 引入 Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 为处理按钮添加事件监听
+            document.querySelectorAll('.btn-process').forEach(button => {
+                button.addEventListener('click', function() {
+                    const action = this.getAttribute('data-action');
+                    confirmAction(action);
+                });
+            });
+        });
+        
+        function confirmAction(action) {
+            const actionText = action === 'approve' ? '通过' : '拒绝';
+            if (confirm(`确认${actionText}该申请吗？此操作不可撤销。`)) {
+                document.getElementById('actionInput').value = action;
+                document.querySelector('.review-form').submit();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -89,8 +89,8 @@
     </div>
     
     <!-- 统计卡片 -->
-    <div class="row mb-4">
-        <div class="col-md-3">
+    <div class="row mb-4 justify-content-center">
+        <div class="col-md-4 col-sm-6">
             <div class="card text-white bg-primary mb-3">
                 <div class="card-body">
                     <h5 class="card-title">总用户数</h5>
@@ -98,7 +98,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4 col-sm-6">
             <div class="card text-white bg-info mb-3">
                 <div class="card-body">
                     <h5 class="card-title">管理员</h5>
@@ -106,15 +106,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-success mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">教师</h5>
-                    <p class="card-text" th:text="${teacherCount}"></p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
+        <div class="col-md-4 col-sm-6">
             <div class="card text-white bg-warning mb-3">
                 <div class="card-body">
                     <h5 class="card-title">学生</h5>
@@ -125,7 +117,7 @@
     </div>
     
     <!-- 用户列表表格 -->
-    <div class="row mt-4">
+    <div class="row mt-6">
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-header bg-info text-white">
@@ -150,36 +142,24 @@
                                     <td th:text="${user.username}"></td>
                                     <td th:text="${user.realName}"></td>
                                     <td>
-                                        <span th:switch="${user.userType}">
-                                            <span th:case="'ADMIN'" class="badge bg-info">管理员</span>
-                                            <span th:case="'TEACHER'" class="badge bg-success">教师</span>
-                                            <span th:case="'STUDENT'" class="badge bg-warning">学生</span>
-                                            <span th:case="*" class="badge bg-secondary">未知</span>
+                                        <span th:switch="${#strings.toLowerCase(user.userType)}">
+                                            <span th:case="'admin'" class="badge bg-info">管理员</span>
+                                            <span th:case="'student'" class="badge bg-warning">学生</span>
+                                            <span th:case="*" class="badge bg-secondary">未知类型</span>
                                         </span>
                                     </td>
                                     <td>
-                                        <span th:switch="${user.status}">
-                                            <span th:case="'ACTIVE'" class="badge bg-success">已激活</span>
-                                            <span th:case="'INACTIVE'" class="badge bg-danger">已禁用</span>
-                                            <span th:case="*" class="badge bg-secondary">未知</span>
+                                        <span th:switch="${#strings.toLowerCase(user.status)}">
+                                            <span th:case="'active'" class="badge bg-success">活跃</span>
+                                            <span th:case="'inactive'" class="badge bg-warning">禁用</span>
+                                            <span th:case="*" class="badge bg-secondary">未知状态</span>
                                         </span>
                                     </td>
                                     <td>
-                                        <div class="btn-group">
-                                            <!-- 状态切换表单 -->
-                                            <form th:action="@{/admin/user/{userId}/update-status(userId=${user.id})}" method="post" class="me-1">
-                                                <input type="hidden" name="status" th:value="${user.status == 'ACTIVE' ? 'INACTIVE' : 'ACTIVE'}">
-                                                <button type="submit" class="btn btn-sm" th:classappend="${user.status == 'ACTIVE' ? 'btn-danger' : 'btn-success'}">
-                                                    <span th:text="${user.status == 'ACTIVE' ? '禁用' : '激活'}"></span>
-                                                </button>
-                                            </form>
-                                            
-                                            <!-- 权限管理按钮 -->
-                                            <button type="button" class="btn btn-sm btn-primary" th:attr="data-bs-toggle='modal', data-bs-target='#roleModal', data-user-id=${user.id}, data-user-name=${user.realName}, data-user-type=${user.userType}">
-                                                权限
-                                            </button>
-                                        </div>
-                                    </td>
+                    <button type="button" class="btn btn-sm btn-primary" th:attr="data-bs-toggle='modal', data-bs-target='#editUserModal', data-user-id=${user.id}, data-user-name=${user.realName}, data-user-type=${user.userType}, data-status=${user.status}">
+                        <i class="bi bi-pencil"></i> 修改
+                    </button>
+                </td>
                                 </tr>
                                 <tr th:if="${users.empty}">
                                     <td colspan="6" class="text-center">暂无用户数据</td>
@@ -195,33 +175,43 @@
         </div>
     </div>
 
-    <!-- 权限管理模态框 -->
-    <div class="modal fade" id="roleModal" tabindex="-1" aria-labelledby="roleModalLabel" aria-hidden="true">
+    <!-- 修改用户模态框 -->
+    <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="roleModalLabel">修改用户权限</h5>
+                    <h5 class="modal-title" id="editUserModalLabel">修改用户信息</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="/admin/user/-1/update-role" method="post" id="roleForm">
-                        <div class="mb-3">
-                            <label for="roleUserName" class="form-label">用户名</label>
-                            <input type="text" class="form-control" id="roleUserName" disabled>
+                    <p class="mb-3">正在编辑用户: <span id="selectedUserName" class="font-weight-bold"></span></p>
+                    
+                    <!-- 状态显示 -->
+                    <div class="mb-4">
+                        <h6>用户状态</h6>
+                        <div class="p-2 bg-light rounded">
+                            <span id="userStatusBadge" class="badge"></span>
                         </div>
-                        <div class="mb-3">
-                            <label for="userType" class="form-label">用户类型</label>
-                            <select class="form-select" id="userTypeSelect" name="userType">
-                                <option value="ADMIN">管理员</option>
-                                <option value="TEACHER">教师</option>
-                                <option value="STUDENT">学生</option>
-                            </select>
+                    </div>
+                    
+                    <!-- 用户类型显示 -->
+                    <div class="mb-4">
+                        <h6>用户类型</h6>
+                        <div class="p-2 bg-light rounded">
+                            <span id="userTypeDisplay" class="badge"></span>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                    <button type="submit" form="roleForm" class="btn btn-primary">保存修改</button>
+                    </div>
+                    
+                    <!-- 密码重置表单 -->
+                    <div class="mb-2">
+                        <h6>密码重置</h6>
+                        <p class="text-warning">重置密码将设置为默认密码: <strong>123456</strong></p>
+                        <form id="resetPasswordForm" method="post" action="" th:action="@{/admin/user/{userId}/reset-password(userId='_placeholder_')}">
+                            <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('确定要重置此用户的密码吗？')">
+                                <i class="bi bi-key"></i> 重置密码
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -230,28 +220,73 @@
     <!-- 引入 Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 权限管理模态框处理
+        // 修改用户模态框初始化
         document.addEventListener('DOMContentLoaded', function() {
-            const roleModal = document.getElementById('roleModal');
-            const roleForm = document.getElementById('roleForm');
-            const roleUserName = document.getElementById('roleUserName');
-            const userTypeSelect = document.getElementById('userTypeSelect');
+            const editModal = document.getElementById('editUserModal');
+            const resetPasswordForm = document.getElementById('resetPasswordForm');
+            const selectedUserName = document.getElementById('selectedUserName');
+            const userStatusBadge = document.getElementById('userStatusBadge');
+            const userTypeDisplay = document.getElementById('userTypeDisplay');
             
-            roleModal.addEventListener('show.bs.modal', function(event) {
+            editModal.addEventListener('show.bs.modal', function(event) {
                 const button = event.relatedTarget;
                 const userId = button.getAttribute('data-user-id');
                 const userName = button.getAttribute('data-user-name');
-                const userType = button.getAttribute('data-user-type');
-                
-                // 更新表单目标URL
-                roleForm.action = '/admin/user/' + userId + '/update-role';
+                const userTypeValue = button.getAttribute('data-user-type');
+                const status = button.getAttribute('data-status');
                 
                 // 填充用户名
-                roleUserName.value = userName;
+                selectedUserName.textContent = userName;
                 
-                // 设置用户类型
-                userTypeSelect.value = userType;
+                // 更新密码重置表单的action URL
+                resetPasswordForm.action = resetPasswordForm.action.replace('_placeholder_', userId);
+                
+                // 设置用户类型显示
+                if (userTypeValue) {
+                    const typeText = userTypeValue === 'STUDENT' ? '学生' : 
+                                     userTypeValue === 'TEACHER' ? '教师' : 
+                                     userTypeValue === 'ADMIN' ? '管理员' : '未知类型';
+                    const typeClass = userTypeValue === 'STUDENT' ? 'bg-warning' : 
+                                     userTypeValue === 'TEACHER' ? 'bg-secondary' : 
+                                     userTypeValue === 'ADMIN' ? 'bg-info' : 'bg-secondary';
+                    userTypeDisplay.textContent = typeText;
+                    userTypeDisplay.className = `badge ${typeClass}`;
+                }
+                
+                // 设置状态显示
+                if (status) {
+                    const statusText = status.toLowerCase() === 'active' ? '活跃' : 
+                                      status.toLowerCase() === 'inactive' ? '非活跃' :
+                                      status.toLowerCase() === 'locked' ? '锁定' :
+                                      status.toLowerCase() === 'disabled' ? '禁用' : '未知状态';
+                    const statusClass = status.toLowerCase() === 'active' ? 'bg-success' : 
+                                      status.toLowerCase() === 'inactive' ? 'bg-warning' :
+                                      status.toLowerCase() === 'locked' ? 'bg-danger' :
+                                      status.toLowerCase() === 'disabled' ? 'bg-secondary' : 'bg-secondary';
+                    userStatusBadge.textContent = statusText;
+                    userStatusBadge.className = `badge ${statusClass}`;
+                }
             });
+            
+            // 处理消息提示自动消失
+            const messageElements = document.querySelectorAll('.alert-success, .alert-info');
+            if (messageElements.length > 0) {
+                setTimeout(function() {
+                    messageElements.forEach(function(element) {
+                        element.style.opacity = '1';
+                        let opacity = 1;
+                        const fadeEffect = setInterval(function() {
+                            if (opacity > 0) {
+                                opacity -= 0.1;
+                                element.style.opacity = opacity;
+                            } else {
+                                clearInterval(fadeEffect);
+                                element.style.display = 'none';
+                            }
+                        }, 100);
+                    });
+                }, 3000);
+            }
         });
     </script>
 </body>

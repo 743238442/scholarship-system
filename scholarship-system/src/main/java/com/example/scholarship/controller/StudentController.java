@@ -10,10 +10,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
@@ -38,6 +41,9 @@ public class StudentController {
     
     @Autowired
     private StudentService studentService;
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     /**
      * 学生申请记录页面
@@ -134,6 +140,55 @@ public class StudentController {
             return "error"; // 或者返回一个错误页面
         }
     }
-
+    
+    /**
+     * 修改学生密码
+     * 只允许STUDENT角色访问
+     */
+    @PostMapping("/profile/change-password")
+    @PreAuthorize("hasRole('STUDENT')")
+    public String changePassword(Authentication authentication, 
+                                @RequestParam String currentPassword,
+                                @RequestParam String newPassword,
+                                @RequestParam String confirmPassword,
+                                RedirectAttributes redirectAttributes) {
+        try {
+            log.info("开始处理密码修改请求");
+            
+            // 获取当前登录用户
+            String username = authentication.getName();
+            User currentUser = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("用户信息不存在"));
+            
+            // 验证当前密码是否正确
+            if (!passwordEncoder.matches(currentPassword, currentUser.getPassword())) {
+                log.warn("用户 {} 当前密码验证失败", username);
+                return "redirect:/student/profile?error";
+            }
+            
+            // 验证新密码和确认密码是否一致
+            if (!newPassword.equals(confirmPassword)) {
+                log.warn("用户 {} 新密码和确认密码不一致", username);
+                return "redirect:/student/profile?error";
+            }
+            
+            // 验证新密码长度
+            if (newPassword.length() < 6) {
+                log.warn("用户 {} 新密码长度不足6位", username);
+                return "redirect:/student/profile?error";
+            }
+            
+            // 更新密码
+            currentUser.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(currentUser);
+            log.info("用户 {} 密码修改成功", username);
+            
+            return "redirect:/student/profile?success";
+            
+        } catch (Exception e) {
+            log.error("处理密码修改时发生错误: {}", e.getMessage(), e);
+            return "redirect:/student/profile?error";
+        }
+    }
 
 }

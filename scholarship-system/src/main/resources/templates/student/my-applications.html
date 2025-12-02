@@ -137,9 +137,7 @@
                                             <tr>
                                                 <th scope="col">序号</th>
                                                 <th scope="col">奖学金类型</th>
-                                                <th scope="col">申请时间</th>
                                                 <th scope="col">状态</th>
-                                                <th scope="col">评审结果</th>
                                                 <th scope="col">评审意见</th>
                                             </tr>
                                         </thead>
@@ -147,17 +145,15 @@
                                             <tr th:each="review, iterStat : ${reviewDtos}">
                                                 <th scope="row" th:text="${iterStat.index + 1}"></th>
                                                 <td th:text="${review.scholarshipType?.name}"></td>
-                                                <td th:text="${#dates.format(review.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
                                                 <td>
                                                     <span class="status-badge" th:classappend="${review.status == 'PENDING' ? 'status-pending' : (review.status == 'APPROVED' ? 'status-approved' : (review.status == 'REJECTED' ? 'status-rejected' : ''))}">
                                                         <span th:text="${review.status == 'PENDING' ? '待评审' : review.status == 'APPROVED' ? '已通过' : review.status == 'REJECTED' ? '已拒绝' : review.status}"></span>
                                                     </span>
                                                 </td>
-                                                <td th:text="${review.status == 'PENDING' ? '审核中' : review.status == 'APPROVED' ? '通过' : review.status == 'REJECTED' ? '未通过' : '-'}"></td>
                                                 <td th:text="${review.comment ?: '-'}"></td>
                                             </tr>
                                             <tr th:if="${reviewDtos.empty}">
-                                                <td colspan="6" class="text-center text-muted py-4">
+                                                <td colspan="4" class="text-center text-muted py-4">
                                                     <i class="bi bi-inbox-fill" style="font-size: 2rem;"></i>
                                                     <p class="mt-2">暂无申请记录</p>
                                                     <a href="/student/apply" class="btn btn-primary btn-sm">立即申请</a>

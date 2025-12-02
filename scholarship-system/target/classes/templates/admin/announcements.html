@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>公告管理 - 管理员面板</title>
+    <!-- CSRF令牌 -->
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
     <!-- 引入 Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- 引入 Bootstrap Icons -->
@@ -70,7 +73,10 @@
                         <span class="font-weight-bold">管理员</span>
                     </div>
                 </div>
-                <p class="text-muted">发布和管理系统公告</p>
+                <p class="text-muted">发布新的系统公告</p>
+    
+                <!-- 查看已发布公告按钮 -->
+                
     
     <!-- 发布公告表单 -->
     <div class="row mt-4">
@@ -92,48 +98,16 @@
                             <label for="content" class="form-label">公告内容</label>
                             <textarea class="form-control" id="content" name="content" rows="8" required></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-check-circle"></i>
-                            发布公告
-                        </button>
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i>
+                                发布公告
+                            </button>
+                            <a href="/admin/published-announcements" class="btn btn-success">
+                                <i class="bi bi-list-ul"></i> 查看已发布公告列表
+                            </a>
+                        </div>
                     </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- 已发布公告列表 -->
-    <div class="row mt-6">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-info text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-list-ul"></i>
-                        已发布公告列表
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="announcement-list">
-                        <div class="mb-3" th:each="announcement : ${announcements}">
-                            <div class="card border-info">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0" th:text="${announcement.title}"></h5>
-                                    <span class="text-muted small" th:text="${#temporals.format(announcement.publishedAt, 'yyyy-MM-dd HH:mm')}"></span>
-                                </div>
-                                <div class="card-body">
-                                    <div class="announcement-summary" th:text="${#strings.abbreviate(announcement.content, 150)}"></div>
-                                    <div class="mt-2 text-sm text-muted">
-                                        发布人：<span th:text="${announcement.publishedBy}"></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- 无公告提示 -->
-                        <div class="alert alert-info text-center" th:if="${#lists.isEmpty(announcements)}">
-                            暂无已发布的公告
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -147,6 +121,10 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
+            // 获取CSRF令牌
+            const token = $('meta[name="_csrf"]').attr('content');
+            const header = $('meta[name="_csrf_header"]').attr('content');
+            
             // 表单提交处理
             $('#announcementForm').on('submit', function(e) {
                 e.preventDefault();
@@ -159,20 +137,29 @@
                     return;
                 }
                 
-                $.ajax({
-                    url: '/api/announcements',
+                // 创建AJAX请求配置
+                const requestConfig = {
+                    url: '/admin/api/announcements',
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({ title: title, content: content }),
                     success: function() {
-                        alert('公告发布成功！');
-                        // 刷新页面以显示新公告
-                        location.reload();
+                        // 公告发布成功后跳转到已发布公告列表页面
+                        window.location.href = '/admin/published-announcements';
                     },
-                    error: function() {
+                    error: function(xhr) {
+                        console.error('错误详情:', xhr.responseText);
                         alert('公告发布失败，请重试');
                     }
-                });
+                };
+                
+                // 添加CSRF令牌到请求头
+                if (header && token) {
+                    requestConfig.headers = {}
+                    requestConfig.headers[header] = token;
+                }
+                
+                $.ajax(requestConfig);
             });
         });
     </script>

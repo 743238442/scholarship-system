@@ -70,8 +70,8 @@ public class AuthController {
             model.addAttribute("studentName", student.getName());
             model.addAttribute("pageTitle", "学生仪表板");
             
-            // 获取公告列表，按发布时间倒序排列
-            List<Announcement> announcements = announcementRepository.findAll(Sort.by(Sort.Direction.DESC, "publishedAt"));
+            // 获取未删除的公告列表，按发布时间倒序排列
+            List<Announcement> announcements = announcementRepository.findByDeletedIsFalse(Sort.by(Sort.Direction.DESC, "publishedAt"));
             model.addAttribute("announcements", announcements);
             
             return "student/dashboard";
@@ -105,9 +105,11 @@ public class AuthController {
             model.addAttribute("studentName", student.getName());
             model.addAttribute("pageTitle", "公告详情");
             
-            // 获取公告详情
-            Announcement announcement = announcementRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("公告不存在"));
+            // 获取未删除的公告详情
+            Announcement announcement = announcementRepository.findByIdAndDeletedIsFalse(id);
+            if (announcement == null) {
+                throw new RuntimeException("公告不存在或已被删除");
+            }
             model.addAttribute("announcement", announcement);
             
             return "student/announcement-detail";

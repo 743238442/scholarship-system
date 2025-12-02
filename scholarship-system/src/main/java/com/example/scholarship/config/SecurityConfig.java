@@ -112,7 +112,7 @@ public class SecurityConfig {
         http
             // 启用CSRF防护
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/api/**") // API接口可以禁用CSRF（如果需要）
+                .ignoringRequestMatchers("/api/auth/**") // 只对认证相关API禁用CSRF
             )
             
             // 配置请求授权

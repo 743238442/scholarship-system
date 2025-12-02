@@ -6,6 +6,7 @@ import com.example.scholarship.repository.ReviewRepository;
 import com.example.scholarship.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,9 @@ public class AdminController {
 
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     /**
      * 管理员仪表盘
@@ -71,12 +75,28 @@ public class AdminController {
     }
     
     /**
-     * 审核申请
+     * 查看审核详情
+     */
+    @GetMapping("/review/{id}/detail")
+    public String viewReviewDetail(@PathVariable("id") Long reviewId, Model model) {
+        // 查找审核记录
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("审核记录不存在"));
+        
+        model.addAttribute("review", review);
+        model.addAttribute("pageTitle", "审核详情");
+        
+        return "admin/review-detail";
+    }
+    
+    /**
+     * 审核申请并添加评审意见
      */
     @PostMapping("/review/{reviewId}/process")
     public String processReview(
             @PathVariable("reviewId") Long reviewId,
             @RequestParam("action") String action,
+            @RequestParam(value = "comments", required = false) String comments,
             Authentication authentication,
             RedirectAttributes redirectAttributes) {
         
@@ -110,6 +130,11 @@ public class AdminController {
             
             // 设置评审人ID
             review.setReviewerId(adminUser.getId());
+            
+            // 保存评审意见
+            if (comments != null && !comments.trim().isEmpty()) {
+                review.setComments(comments);
+            }
             
             // 保存更新后的审核记录
             reviewRepository.save(review);
@@ -198,6 +223,22 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("errorMessage", "更新用户权限时发生错误: " + e.getMessage());
         }
         
+        return "redirect:/admin/user-management";
+    }
+    
+    /**
+     * 重置用户密码为默认密码123456
+     */
+    @PostMapping("/user/{userId}/reset-password")
+    public String resetPassword(@PathVariable Long userId, RedirectAttributes redirectAttributes) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("用户不存在"));
+        
+        // 将密码重置为123456并加密
+        user.setPassword(passwordEncoder.encode("123456"));
+        userRepository.save(user);
+        
+        redirectAttributes.addFlashAttribute("message", "用户密码已成功重置为默认密码123456");
         return "redirect:/admin/user-management";
     }
 }

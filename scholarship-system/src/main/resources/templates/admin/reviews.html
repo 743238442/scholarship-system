@@ -81,12 +81,6 @@
                     <span th:text="${errorMessage}"></span>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-    <div class="row">
-        <div class="col-12">
-            <h2>奖学金申请审核</h2>
-            <p class="text-muted">管理学生的奖学金申请</p>
-        </div>
-    </div>
     
     <!-- 申请统计 -->
     <div class="row mt-4">
@@ -145,7 +139,6 @@
                                 <th>申请ID</th>
                                 <th>学生姓名</th>
                                 <th>奖学金类型</th>
-                                <th>申请时间</th>
                                 <th>状态</th>
                                 <th>操作</th>
                             </tr>
@@ -155,7 +148,6 @@
                                 <td th:text="'#REV' + ${review.id}">#REV001</td>
                                 <td th:text="${review.student.name}">学生姓名</td>
                                 <td th:text="${review.scholarshipType.name}">奖学金类型</td>
-                                <td th:text="${#dates.format(review.createdAt, 'yyyy-MM-dd')}">2024-11-15</td>
                                 <td>
                                     <span th:switch="${review.reviewStatus}">
                                         <span th:case="'pending'" class="badge bg-warning">待审核</span>
@@ -165,21 +157,11 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-primary">查看</button>
-                                    <span th:if="${review.reviewStatus} == 'pending'">
-                                        <form th:action="@{/admin/review/{id}/process(id=${review.id})}" method="post" style="display: inline-block;">
-                                            <input type="hidden" name="action" value="approve">
-                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('确认通过该申请吗？');">通过</button>
-                                        </form>
-                                        <form th:action="@{/admin/review/{id}/process(id=${review.id})}" method="post" style="display: inline-block;">
-                                            <input type="hidden" name="action" value="reject">
-                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('确认拒绝该申请吗？');">拒绝</button>
-                                        </form>
-                                    </span>
+                                    <a th:href="@{/admin/review/{id}/detail(id=${review.id})}" class="btn btn-sm btn-primary"><i class="bi bi-search"></i> 审核</a>
                                 </td>
                             </tr>
                             <tr th:if="${applications.empty}">
-                                <td colspan="6" class="text-center">暂无申请记录</td>
+                                <td colspan="5" class="text-center">暂无申请记录</td>
                             </tr>
                         </tbody>
                     </table>
