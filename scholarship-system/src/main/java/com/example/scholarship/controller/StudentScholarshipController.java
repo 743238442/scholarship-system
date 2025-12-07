@@ -17,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.security.Principal;
 import java.util.List;
@@ -49,14 +50,12 @@ public class StudentScholarshipController {
     private StudentRepository studentRepository;
     
     /**
-     * 显示奖学金申请页面，包含所有可申请的奖学金类型
+     * 显示奖学金申请页面，包含所有可申请的奖学金类型（排除已通过的类型）
      */
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/apply")
     public String showApplyPage(Model model, Authentication authentication) {
-        // 获取奖学金类型列表
-        List<ScholarshipType> scholarshipTypes = scholarshipTypeService.findAll();
-        model.addAttribute("scholarshipTypes", scholarshipTypes);
+        List<ScholarshipType> scholarshipTypes = new java.util.ArrayList<>();
         
         try {
             // 获取当前登录用户
@@ -75,6 +74,21 @@ public class StudentScholarshipController {
             currentUser.setRealName(student.getName());
             currentUser.setUsername(student.getStudentNo());
             model.addAttribute("currentUser", currentUser);
+            
+            // 获取学生ID
+            Long studentId = student.getId();
+            
+            // 获取学生已经通过的奖学金类型ID列表
+            List<Long> approvedScholarshipTypeIds = reviewRepository.findApprovedScholarshipTypeIdsByStudentId(studentId);
+            
+            // 获取所有奖学金类型
+            List<ScholarshipType> allScholarshipTypes = scholarshipTypeService.findAll();
+            
+            // 过滤出学生尚未通过申请的奖学金类型
+            scholarshipTypes = allScholarshipTypes.stream()
+                .filter(type -> !approvedScholarshipTypeIds.contains(type.getId()))
+                .collect(java.util.stream.Collectors.toList());
+            
         } catch (Exception e) {
             // 如果获取失败，提供默认信息
             model.addAttribute("errorMessage", "获取学生信息失败: " + e.getMessage());
@@ -85,8 +99,12 @@ public class StudentScholarshipController {
             defaultUser.setUsername("未知");
             defaultUser.setRealName("未知");
             model.addAttribute("currentUser", defaultUser);
+            
+            // 如果出现错误，返回所有奖学金类型
+            scholarshipTypes = scholarshipTypeService.findAll();
         }
         
+        model.addAttribute("scholarshipTypes", scholarshipTypes);
         return "student/apply";
     }
     
@@ -176,6 +194,8 @@ public class StudentScholarshipController {
                 dto.put("status", review.getReviewStatus().toUpperCase());
                 // 将comments转换为comment，以匹配模板期望
                 dto.put("comment", review.getComments());
+                // 保留原始reviewStatus用于删除按钮的条件判断
+                dto.put("reviewStatus", review.getReviewStatus());
                 
                 return dto;
             }).collect(Collectors.toList());
@@ -194,6 +214,49 @@ public class StudentScholarshipController {
         }
         
         return "student/my-applications";
+    }
+    
+    /**
+     * 删除待审核的奖学金申请
+     */
+    @PostMapping("/my-applications/delete/{id}")
+    @PreAuthorize("hasRole('STUDENT')")
+    public String deleteApplication(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            // 获取当前登录用户
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String username = auth.getName();
+            
+            // 根据用户名查找学生信息
+            Student student = studentRepository.findByUserUsername(username)
+                .orElseThrow(() -> new Exception("未找到学生信息，请联系管理员"));
+            
+            // 查找申请记录
+            Review review = reviewRepository.findById(id)
+                .orElseThrow(() -> new Exception("未找到申请记录"));
+            
+            // 检查申请是否属于当前学生
+            if (!review.getStudent().getId().equals(student.getId())) {
+                throw new Exception("您无权删除此申请记录");
+            }
+            
+            // 检查申请状态是否为待审核
+            if (!review.getReviewStatus().equals("pending")) {
+                throw new Exception("只能删除待审核的申请记录");
+            }
+            
+            // 删除申请记录
+            reviewRepository.delete(review);
+            
+            // 添加成功消息
+            redirectAttributes.addFlashAttribute("successMessage", "申请记录删除成功！");
+        } catch (Exception e) {
+            // 设置错误消息
+            redirectAttributes.addFlashAttribute("errorMessage", "删除申请失败: " + e.getMessage());
+        }
+        
+        // 重定向到申请列表页面
+        return "redirect:/student/my-applications";
     }
     
 

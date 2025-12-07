@@ -45,6 +45,19 @@ public class ReviewServiceImpl implements ReviewService {
         ScholarshipType scholarshipType = scholarshipTypeRepository.findById(scholarshipTypeId)
                 .orElseThrow(() -> new Exception("奖学金类型不存在"));
         
+        // 检查学生当前有效申请数量是否已经达到2个（非rejected状态）
+        long currentApplicationCount = reviewRepository.countByStudentIdAndReviewStatusNot(
+                student.getId(), "rejected");
+        if (currentApplicationCount >= 2) {
+            throw new Exception("每位学生最多只能申请两种奖学金，请不要超过限制");
+        }
+        
+        // 检查是否已经通过该奖学金的申请
+        if (reviewRepository.existsByStudentIdAndScholarshipTypeIdAndReviewStatus(
+                student.getId(), scholarshipTypeId, "approved")) {
+            throw new Exception("您已经通过该奖学金的申请，无需再次申请");
+        }
+        
         // 检查是否已存在非rejected状态的申请
         if (reviewRepository.existsByStudentIdAndScholarshipTypeIdAndReviewStatusNot(
                 student.getId(), scholarshipTypeId, "rejected")) {

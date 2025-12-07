@@ -139,6 +139,7 @@
                                                 <th scope="col">奖学金类型</th>
                                                 <th scope="col">状态</th>
                                                 <th scope="col">评审意见</th>
+                                                <th scope="col">操作</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -151,6 +152,15 @@
                                                     </span>
                                                 </td>
                                                 <td th:text="${review.comment ?: '-'}"></td>
+                                                <td>
+                                                    <!-- 只对待审核的申请显示删除按钮 -->
+                                                    <form th:if="${review.reviewStatus == 'pending'}" th:action="@{/student/my-applications/delete/__${review.id}__}" method="post" class="d-inline">
+                                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除此申请记录吗？')">
+                                                            <i class="bi bi-trash"></i> 删除
+                                                        </button>
+                                                    </form>
+                                                    <span th:unless="${review.reviewStatus == 'pending'}" class="text-muted">-</span>
+                                                </td>
                                             </tr>
                                             <tr th:if="${reviewDtos.empty}">
                                                 <td colspan="4" class="text-center text-muted py-4">
@@ -184,6 +194,8 @@
                         <li>• 申请提交后将进入审核流程，请耐心等待</li>
                         <li>• 同一奖学金类型只能提交一次未被拒绝的申请</li>
                         <li>• 您可以随时查看申请状态和评审结果</li>
+                        <!-- <li>• 待审核的申请可以删除，审核通过或拒绝的申请无法删除</li>
+                        <li>• 删除申请后，管理员将不会看到该申请记录</li> -->
                     </ul>
                 </div>
             </main>

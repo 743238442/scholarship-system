@@ -90,4 +90,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     @Query("SELECT u FROM User u WHERE (u.username = :usernameOrEmail OR u.email = :usernameOrEmail) AND u.isDeleted = false")
     Optional<User> findByUsernameOrEmail(@Param("usernameOrEmail") String usernameOrEmail);
+    
+    /**
+     * 搜索用户（根据用户名、真实姓名或邮箱）
+     */
+    @Query("SELECT u FROM User u WHERE u.isDeleted = false AND (u.username LIKE %:keyword% OR u.realName LIKE %:keyword% OR u.email LIKE %:keyword%)")
+    List<User> searchUsers(@Param("keyword") String keyword);
 }

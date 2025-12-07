@@ -53,9 +53,16 @@ public class AdminController {
      * 查看所有学生申请
      */
     @GetMapping("/reviews")
-    public String viewAllApplications(Model model) {
-        // 获取所有申请记录，按创建时间倒序排列
-        List<Review> allApplications = reviewRepository.findAllByOrderByCreatedAtDesc();
+    public String viewAllApplications(Model model, @RequestParam(value = "keyword", required = false) String keyword) {
+        // 获取申请记录，支持搜索功能
+        List<Review> allApplications;
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            // 根据关键词搜索申请记录
+            allApplications = reviewRepository.searchReviewsByKeyword(keyword.trim());
+        } else {
+            // 获取所有申请记录，按创建时间倒序排列
+            allApplications = reviewRepository.findAllByOrderByCreatedAtDesc();
+        }
         
         // 计算各状态的申请数量
         long pendingCount = allApplications.stream().filter(r -> "pending".equals(r.getReviewStatus())).count();
@@ -70,6 +77,7 @@ public class AdminController {
         model.addAttribute("rejectedCount", rejectedCount);
         model.addAttribute("totalCount", totalCount);
         model.addAttribute("pageTitle", "申请审核");
+        model.addAttribute("keyword", keyword != null ? keyword.trim() : "");
         
         return "admin/reviews";
     }
@@ -150,9 +158,16 @@ public class AdminController {
      * 显示用户管理页面
      */
     @GetMapping("/user-management")
-    public String userManagement(Model model) {
-        // 获取所有用户
-        List<User> allUsers = userRepository.findAll();
+    public String userManagement(Model model, @RequestParam(value = "keyword", required = false) String keyword) {
+        // 获取用户列表（支持搜索）
+        List<User> allUsers;
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            // 搜索用户
+            allUsers = userRepository.searchUsers(keyword.trim());
+        } else {
+            // 获取所有未删除的用户
+            allUsers = userRepository.findAllActiveUsers();
+        }
         
         // 统计各类型用户数量
         long adminCount = allUsers.stream().filter(u -> User.UserType.ADMIN.equals(u.getUserType())).count();
@@ -172,6 +187,7 @@ public class AdminController {
         model.addAttribute("inactiveCount", inactiveCount);
         model.addAttribute("totalCount", allUsers.size());
         model.addAttribute("pageTitle", "用户管理");
+        model.addAttribute("keyword", keyword != null ? keyword.trim() : "");
         
         return "admin/user-management";
     }
