@@ -1,0 +1,1 @@
+2025-12-09T13:13:52.160+08:00  WARN 31624 --- [scholarship-system] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=13h35m44s998ms135?s400ns).
